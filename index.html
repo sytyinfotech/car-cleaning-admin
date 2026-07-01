@@ -169,11 +169,64 @@
 
   .note-banner{background:rgba(245,185,66,.08);border:1px solid rgba(245,185,66,.3);color:var(--amber);border-radius:8px;padding:12px 16px;font-size:12.5px;margin-bottom:20px;}
 
+  /* ---------------- MAIN VIEW TABS (Orders / Tickets) ---------------- */
+  .main-tabs{display:flex;gap:8px;margin-bottom:22px;}
+  .main-tab{padding:10px 18px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13.5px;cursor:pointer;font-weight:600;}
+  .main-tab.active{background:var(--violet);border-color:var(--violet);color:#0e0a26;}
+
+  /* ---------------- TICKET BADGES ---------------- */
+  .badge.low{color:var(--muted);background:rgba(141,160,194,.12);}
+  .badge.medium{color:var(--amber);background:rgba(245,185,66,.12);}
+  .badge.high{color:var(--red);background:rgba(239,90,111,.12);}
+  .badge.open{color:var(--amber);background:rgba(245,185,66,.12);}
+  .badge.in_progress{color:var(--aqua);background:rgba(52,211,201,.12);}
+  .badge.resolved{color:var(--green);background:rgba(79,209,126,.12);}
+
+  .raise-ticket-btn{padding:9px 16px;border-radius:8px;border:1px solid var(--violet);background:rgba(155,140,255,.1);color:var(--violet);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;}
+  .raise-ticket-btn:hover{background:var(--violet);color:#0e0a26;}
+
+  .ticket-desc-cell{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12.5px;}
+
+  /* ---------------- MODAL ---------------- */
+  .modal-overlay{position:fixed;inset:0;background:rgba(5,9,16,.65);display:none;align-items:flex-start;justify-content:center;z-index:200;padding:40px 16px;overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal-card{width:100%;max-width:480px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);}
+  .modal-head h2{margin:0;font-size:15px;font-weight:700;}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;}
+  .modal-body{padding:20px;max-height:65vh;overflow-y:auto;}
+  .modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line);background:var(--panel-2);}
+
+  .field textarea{
+    width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:11px 13px;font-size:13.5px;outline:none;font-family:var(--sans);resize:vertical;min-height:80px;
+  }
+  .field textarea:focus, .field select:focus{border-color:var(--violet);}
+  .field select{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:11px 13px;font-size:13.5px;outline:none;}
+  .row2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;}
+
+  .modal-btn{padding:10px 18px;border-radius:8px;border:none;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .modal-btn.primary{background:var(--violet);color:#0e0a26;}
+  .modal-btn.primary:hover{background:#ad9fff;}
+  .modal-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);}
+  .modal-btn.ghost:hover{color:var(--text);border-color:var(--text);}
+  .modal-btn:disabled{opacity:.5;cursor:default;}
+
+  .ro-block{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:14px;}
+  .ro-block .ro-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;}
+  .ro-block .ro-value{font-size:13.5px;}
+
+  .seg{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
+  .seg button{font-size:12px;padding:7px 14px;border-radius:7px;font-family:var(--mono);background:var(--bg);border:1px solid var(--line);color:var(--muted);cursor:pointer;}
+  .seg button.sel{background:rgba(155,140,255,.18);border-color:var(--violet);color:var(--violet);}
+  .seg button:disabled{opacity:.5;cursor:default;}
+
   @media(max-width:900px){
     .stat-row{grid-template-columns:repeat(2,1fr);}
     .container{padding:18px 14px 40px;}
     table{display:block;overflow-x:auto;}
     .topbar{flex-wrap:wrap;gap:10px;}
+    .row2{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -235,84 +288,265 @@
   </div>
 
   <div class="container">
-    <div class="note-banner" id="configWarning" style="display:none;">
-      Couldn't reach <code id="apiUrlDisplay"></code>. Set <code>API_BASE_URL</code> at the top of
-      the script and make sure <code>/admin</code> routes are mounted on your server.
+
+    <!-- ===== MAIN VIEW TABS ===== -->
+    <div class="main-tabs">
+      <div class="main-tab active" id="mainTabOrders" data-view="orders">Orders</div>
+      <div class="main-tab" id="mainTabTickets" data-view="tickets">Tickets</div>
     </div>
 
-    <div class="support-banner" id="supportBanner">
-      You're signed in as <b>Support</b>. You can view all order details, but assigning managers is
-      restricted to Admin accounts.
+    <!-- ===== ORDERS VIEW ===== -->
+    <div id="ordersView">
+
+      <div class="note-banner" id="configWarning" style="display:none;">
+        Couldn't reach <code id="apiUrlDisplay"></code>. Set <code>API_BASE_URL</code> at the top of
+        the script and make sure <code>/admin</code> routes are mounted on your server.
+      </div>
+
+      <div class="support-banner" id="supportBanner">
+        You're signed in as <b>Support</b>. You can view all order details, but assigning managers is
+        restricted to Admin accounts.
+      </div>
+
+      <div class="flow-strip">
+        <div class="flow-step admin"><span class="dot"></span>Admin assigns manager</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step manager"><span class="dot"></span>Manager assigns cleaner</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step cleaner"><span class="dot"></span>Cleaner completes job</div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Total orders</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Needs a manager</div>
+          <div class="stat-value amber" id="statNoManager">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">With manager, no cleaner</div>
+          <div class="stat-value violet" id="statNoCleaner">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value green" id="statCompleted">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Search by name, phone, order ID, apartment...">
+        </div>
+        <div class="tabs" id="filterTabs">
+          <div class="tab active" data-filter="all">All</div>
+          <div class="tab" data-filter="no-manager">Needs manager</div>
+          <div class="tab" data-filter="no-cleaner">Needs cleaner</div>
+          <div class="tab" data-filter="inProgress">In progress</div>
+          <div class="tab" data-filter="completed">Completed</div>
+        </div>
+        <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Contact</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Assign manager</th>
+            <th>Cleaner</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr class="loading-row"><td colspan="7">Loading orders…</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="flow-strip">
-      <div class="flow-step admin"><span class="dot"></span>Admin assigns manager</div>
-      <span class="flow-arrow">→</span>
-      <div class="flow-step manager"><span class="dot"></span>Manager assigns cleaner</div>
-      <span class="flow-arrow">→</span>
-      <div class="flow-step cleaner"><span class="dot"></span>Cleaner completes job</div>
+    <!-- ===== TICKETS VIEW ===== -->
+    <div id="ticketsView" style="display:none;">
+
+      <div class="note-banner" id="ticketConfigWarning" style="display:none;">
+        Couldn't reach <code id="ticketApiUrlDisplay"></code>. Set <code>TICKET_API_BASE_URL</code> at the top of
+        the script and make sure your <code>/tickets</code> routes are mounted on your server.
+      </div>
+
+      <div class="support-banner" id="ticketSupportBanner" style="display:block;">
+        You're signed in as <b>Support</b>. You can raise new tickets here whenever a customer contacts you.
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Open</div>
+          <div class="stat-value amber" id="ticketStatOpen">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">In progress</div>
+          <div class="stat-value violet" id="ticketStatProgress">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Resolved</div>
+          <div class="stat-value green" id="ticketStatResolved">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="ticketStatTotal">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="ticketSearchInput" placeholder="Search by customer, phone, order ID...">
+        </div>
+        <div class="tabs" id="ticketFilterTabs">
+          <div class="tab active" data-filter="all">All</div>
+          <div class="tab" data-filter="open">Open</div>
+          <div class="tab" data-filter="in_progress">In progress</div>
+          <div class="tab" data-filter="resolved">Resolved</div>
+        </div>
+        <button class="raise-ticket-btn" id="raiseTicketBtn" style="display:none;">+ New ticket</button>
+        <button class="refresh-btn" id="ticketRefreshBtn">↻ Refresh</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Customer</th>
+            <th>Order</th>
+            <th>Issue</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Raised by</th>
+          </tr>
+        </thead>
+        <tbody id="ticketsBody">
+          <tr class="loading-row"><td colspan="7">Loading tickets…</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="stat-row">
-      <div class="stat-card">
-        <div class="stat-label">Total orders</div>
-        <div class="stat-value" id="statTotal">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Needs a manager</div>
-        <div class="stat-value amber" id="statNoManager">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">With manager, no cleaner</div>
-        <div class="stat-value violet" id="statNoCleaner">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Completed</div>
-        <div class="stat-value green" id="statCompleted">0</div>
-      </div>
-    </div>
-
-    <div class="toolbar">
-      <div class="search-box">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="searchInput" placeholder="Search by name, phone, order ID, apartment...">
-      </div>
-      <div class="tabs" id="filterTabs">
-        <div class="tab active" data-filter="all">All</div>
-        <div class="tab" data-filter="no-manager">Needs manager</div>
-        <div class="tab" data-filter="no-cleaner">Needs cleaner</div>
-        <div class="tab" data-filter="inProgress">In progress</div>
-        <div class="tab" data-filter="completed">Completed</div>
-      </div>
-      <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Order</th>
-          <th>Customer</th>
-          <th>Contact</th>
-          <th>Location</th>
-          <th>Status</th>
-          <th>Assign manager</th>
-          <th>Cleaner</th>
-        </tr>
-      </thead>
-      <tbody id="ordersBody">
-        <tr class="loading-row"><td colspan="7">Loading orders…</td></tr>
-      </tbody>
-    </table>
   </div>
 
+</div>
+
+<!-- ===== RAISE TICKET MODAL (Support only) ===== -->
+<div class="modal-overlay" id="raiseTicketOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>New support ticket</h2>
+      <button class="modal-close" id="closeRaiseTicketBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="ticketOrderId">Related order ID (optional)</label>
+        <input type="text" id="ticketOrderId" placeholder="e.g. ORD-1042">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="ticketCustomerName">Customer name <span style="color:var(--red);">*</span></label>
+          <input type="text" id="ticketCustomerName" placeholder="Customer's name">
+        </div>
+        <div class="field">
+          <label for="ticketCustomerPhone">Phone</label>
+          <input type="text" id="ticketCustomerPhone" placeholder="+91 ...">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="ticketCategory">Category <span style="color:var(--red);">*</span></label>
+          <select id="ticketCategory">
+            <option value="">Select…</option>
+            <option>Refund request</option>
+            <option>Payment / billing issue</option>
+            <option>Booking issue</option>
+            <option>Plan / subscription issue</option>
+            <option>Service quality complaint</option>
+            <option>Account / profile issue</option>
+            <option>Technical / app issue</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ticketPriority">Priority</label>
+          <select id="ticketPriority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="ticketDescription">Description <span style="color:var(--red);">*</span></label>
+        <textarea id="ticketDescription" placeholder="What is the customer's problem?"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" id="cancelRaiseTicketBtn">Cancel</button>
+      <button class="modal-btn primary" id="submitRaiseTicketBtn">Create ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TICKET DETAIL MODAL ===== -->
+<div class="modal-overlay" id="ticketDetailOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="ticketDetailTitle">Ticket</h2>
+      <button class="modal-close" id="closeTicketDetailBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="ro-block">
+        <div class="ro-label">Customer</div>
+        <div class="ro-value" id="ticketDetailCustomer">—</div>
+        <div class="ro-value" id="ticketDetailPhone" style="color:var(--muted);font-size:12px;margin-top:2px;">—</div>
+      </div>
+      <div class="ro-block">
+        <div class="ro-label">Order &amp; category</div>
+        <div class="ro-value" id="ticketDetailOrder" style="color:var(--aqua);">—</div>
+        <div class="ro-value" id="ticketDetailCategory" style="color:var(--muted);font-size:12px;margin-top:2px;">—</div>
+      </div>
+      <div class="ro-block">
+        <div class="ro-label">Description</div>
+        <div class="ro-value" id="ticketDetailDesc">—</div>
+      </div>
+
+      <div id="ticketAdminControls">
+        <div class="ro-label" style="margin-bottom:8px;">Update status</div>
+        <div class="seg" id="ticketStatusSeg">
+          <button data-s="open">Open</button>
+          <button data-s="in_progress">In progress</button>
+          <button data-s="resolved">Resolved</button>
+        </div>
+        <div class="field">
+          <label for="ticketResolutionNote">Resolution note</label>
+          <textarea id="ticketResolutionNote" placeholder="e.g. Refunded ₹499 — ref PR-99281"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="ticketDetailMeta" style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-right:auto;">—</span>
+      <button class="modal-btn ghost" id="deleteTicketDetailBtn" style="display:none;color:var(--red);border-color:var(--red);">Delete</button>
+      <button class="modal-btn ghost" id="closeTicketDetailBtn2">Close</button>
+      <button class="modal-btn primary" id="saveTicketDetailBtn" style="display:none;">Save</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ⚙️ Set this to your backend URL. Make sure routes/admin.js is mounted at /admin. */
-const API_BASE_URL = "https://shine-steer-cleaning-8cba71055cb7.herokuapp.com";
+/* ⚙️ Set this to your backend URL. Make sure routes/admin.js is mounted at /admin
+   and your ticket routes are mounted at /tickets. */
+const API_BASE_URL = "https://carclean-sandbox-f1000a410813.herokuapp.com";
 // const API_BASE_URL = "http://localhost:5000";
+const TICKET_API_BASE_URL = API_BASE_URL; // change if tickets live on a different host
 
 /* =========================================================
    HARDCODED LOGIN CREDENTIALS
@@ -332,6 +566,11 @@ let ORDERS = [];
 let MANAGERS = [];
 let CLEANERS = [];
 let currentFilter = 'all';
+
+let TICKETS = [];
+let ticketFilter = 'all';
+let activeTicketId = null;
+let pickedTicketStatus = 'open';
 
 const $ = (id) => document.getElementById(id);
 
@@ -383,6 +622,8 @@ function showDashboard(){
   chip.className = 'role-chip ' + (isAdmin ? 'is-admin' : 'is-support');
   $('userEmailDisplay').textContent = CURRENT_USER.email;
   $('supportBanner').style.display = isAdmin ? 'none' : 'block';
+  $('ticketSupportBanner').style.display = isAdmin ? 'none' : 'block';
+  $('raiseTicketBtn').style.display = isAdmin ? 'none' : 'inline-block';
 
   loadAll();
 }
@@ -408,6 +649,21 @@ async function api(path, method='GET', body=null){
   } catch(e){
     $('apiUrlDisplay').textContent = API_BASE_URL;
     $('configWarning').style.display = 'block';
+    return { success:false, message:'Could not reach the server.' };
+  }
+}
+
+async function ticketApi(path, method='GET', body=null){
+  try{
+    const res = await fetch(TICKET_API_BASE_URL + path, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    return await res.json();
+  } catch(e){
+    $('ticketApiUrlDisplay').textContent = TICKET_API_BASE_URL;
+    $('ticketConfigWarning').style.display = 'block';
     return { success:false, message:'Could not reach the server.' };
   }
 }
@@ -556,13 +812,276 @@ function renderTable(){
 
 $('searchInput').addEventListener('input', renderTable);
 $('refreshBtn').addEventListener('click', loadAll);
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('#filterTabs .tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#filterTabs .tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentFilter = tab.getAttribute('data-filter');
     renderTable();
   });
+});
+
+/* =========================================================================
+   MAIN VIEW SWITCH (Orders / Tickets)
+   ========================================================================= */
+$('mainTabOrders').addEventListener('click', () => switchMainView('orders'));
+$('mainTabTickets').addEventListener('click', () => switchMainView('tickets'));
+
+function switchMainView(view){
+  const onTickets = view === 'tickets';
+  $('ordersView').style.display = onTickets ? 'none' : 'block';
+  $('ticketsView').style.display = onTickets ? 'block' : 'none';
+  $('mainTabOrders').classList.toggle('active', !onTickets);
+  $('mainTabTickets').classList.toggle('active', onTickets);
+  if (onTickets) loadTickets();
+}
+
+/* =========================================================================
+   TICKETS — Support raises, both can view, Admin manages status
+   ========================================================================= */
+async function loadTickets(){
+  $('ticketsBody').innerHTML = '<tr class="loading-row"><td colspan="7">Loading tickets…</td></tr>';
+  const res = await ticketApi('/tickets', 'GET');
+  TICKETS = res.success ? (res.tickets || []) : [];
+  if (!res.success) toast(res.message || 'Failed to load tickets', true);
+  renderTicketStats();
+  renderTicketsTable();
+}
+
+function renderTicketStats(){
+  const open = TICKETS.filter(t => t.status === 'open').length;
+  const inProgress = TICKETS.filter(t => t.status === 'in_progress').length;
+  const resolved = TICKETS.filter(t => t.status === 'resolved').length;
+  $('ticketStatOpen').textContent = open;
+  $('ticketStatProgress').textContent = inProgress;
+  $('ticketStatResolved').textContent = resolved;
+  $('ticketStatTotal').textContent = TICKETS.length;
+}
+
+function ticketMatchesSearch(t, q){
+  if (!q) return true;
+  q = q.toLowerCase();
+  const hay = [t.name, t.phone, t.order, t.category, t.desc].filter(Boolean).join(' ').toLowerCase();
+  return hay.includes(q);
+}
+
+function renderTicketsTable(){
+  const q = $('ticketSearchInput').value.trim();
+  let rows = TICKETS.filter(t =>
+    (ticketFilter === 'all' || t.status === ticketFilter) && ticketMatchesSearch(t, q)
+  );
+  rows = rows.slice().sort((a,b) => b.id - a.id);
+
+  if (!rows.length){
+    $('ticketsBody').innerHTML = `<tr><td colspan="7"><div class="empty-state">No tickets match this view.</div></td></tr>`;
+    return;
+  }
+
+  $('ticketsBody').innerHTML = rows.map(t => `
+    <tr data-ticket-id="${t.id}" style="cursor:pointer;">
+      <td><span class="order-id">#${t.id}</span></td>
+      <td>
+        <div class="cust-name">${escapeHtml(t.name)}</div>
+        <div class="cust-meta">${escapeHtml(t.phone || '—')}</div>
+      </td>
+      <td>${escapeHtml(t.order || '—')}</td>
+      <td><span class="ticket-desc-cell" title="${escapeHtml(t.desc)}">${escapeHtml(t.category)} — ${escapeHtml(t.desc)}</span></td>
+      <td><span class="badge ${String(t.priority || '').toLowerCase()}">${t.priority}</span></td>
+      <td><span class="badge ${t.status}">${ticketStatusLabel(t.status)}</span></td>
+      <td>${escapeHtml(t.raisedBy || '—')}</td>
+    </tr>
+  `).join('');
+
+  document.querySelectorAll('#ticketsBody tr[data-ticket-id]').forEach(row => {
+    row.addEventListener('click', () => openTicketDetail(Number(row.getAttribute('data-ticket-id'))));
+  });
+}
+
+function ticketStatusLabel(s){
+  return { open: 'Open', in_progress: 'In progress', resolved: 'Resolved' }[s] || s;
+}
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m]));
+}
+
+$('ticketSearchInput').addEventListener('input', renderTicketsTable);
+$('ticketRefreshBtn').addEventListener('click', loadTickets);
+document.querySelectorAll('#ticketFilterTabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#ticketFilterTabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    ticketFilter = tab.getAttribute('data-filter');
+    renderTicketsTable();
+  });
+});
+
+/* ---------------- RAISE TICKET (Support only) ---------------- */
+$('raiseTicketBtn').addEventListener('click', () => {
+  if (!CURRENT_USER || CURRENT_USER.role !== 'support'){
+    toast('Only Support can raise a ticket.', true);
+    return;
+  }
+  $('ticketOrderId').value = '';
+  $('ticketCustomerName').value = '';
+  $('ticketCustomerPhone').value = '';
+  $('ticketCategory').value = '';
+  $('ticketPriority').value = 'Medium';
+  $('ticketDescription').value = '';
+  $('raiseTicketOverlay').classList.add('open');
+});
+$('closeRaiseTicketBtn').addEventListener('click', () => $('raiseTicketOverlay').classList.remove('open'));
+$('cancelRaiseTicketBtn').addEventListener('click', () => $('raiseTicketOverlay').classList.remove('open'));
+
+$('submitRaiseTicketBtn').addEventListener('click', async () => {
+  const name = $('ticketCustomerName').value.trim();
+  const category = $('ticketCategory').value;
+  const desc = $('ticketDescription').value.trim();
+
+  if (!name || !category || !desc){
+    toast('Customer name, category and description are required.', true);
+    return;
+  }
+
+  const btn = $('submitRaiseTicketBtn');
+  btn.disabled = true;
+
+  const res = await ticketApi('/tickets', 'POST', {
+    order: $('ticketOrderId').value.trim() || '—',
+    name,
+    phone: $('ticketCustomerPhone').value.trim() || '—',
+    category,
+    priority: $('ticketPriority').value,
+    desc,
+    raisedBy: CURRENT_USER.email
+  });
+
+  btn.disabled = false;
+
+  if (!res.success){
+    toast(res.message || 'Failed to create ticket', true);
+    return;
+  }
+
+  $('raiseTicketOverlay').classList.remove('open');
+  toast('Ticket #' + res.ticket.id + ' created');
+  await loadTickets();
+});
+
+/* ---------------- TICKET DETAIL (view for both, manage for Admin) ---------------- */
+function openTicketDetail(id){
+  const t = TICKETS.find(x => x.id === id);
+  if (!t) return;
+  activeTicketId = id;
+  pickedTicketStatus = t.status;
+
+  $('ticketDetailTitle').textContent = '#' + t.id;
+  $('ticketDetailCustomer').textContent = t.name;
+  $('ticketDetailPhone').textContent = t.phone || '—';
+  $('ticketDetailOrder').textContent = t.order || '—';
+  $('ticketDetailCategory').textContent = t.category + ' · ' + t.priority;
+  $('ticketDetailDesc').textContent = t.desc;
+  $('ticketResolutionNote').value = t.resolution || '';
+  $('ticketDetailMeta').textContent = 'Status: ' + ticketStatusLabel(t.status) + (t.raisedBy ? ' · raised by ' + t.raisedBy : '');
+
+  const isAdmin = CURRENT_USER && CURRENT_USER.role === 'admin';
+  $('ticketAdminControls').style.display = isAdmin ? 'block' : 'none';
+  $('saveTicketDetailBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  $('deleteTicketDetailBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  $('ticketResolutionNote').disabled = !isAdmin;
+  document.querySelectorAll('#ticketStatusSeg button').forEach(b => b.disabled = !isAdmin);
+
+  paintTicketStatusSeg();
+  $('ticketDetailOverlay').classList.add('open');
+}
+
+function paintTicketStatusSeg(){
+  document.querySelectorAll('#ticketStatusSeg button').forEach(b =>
+    b.classList.toggle('sel', b.getAttribute('data-s') === pickedTicketStatus));
+}
+
+document.querySelectorAll('#ticketStatusSeg button').forEach(b => {
+  b.addEventListener('click', () => {
+    if (b.disabled) return;
+    pickedTicketStatus = b.getAttribute('data-s');
+    paintTicketStatusSeg();
+  });
+});
+
+function closeTicketDetail(){
+  $('ticketDetailOverlay').classList.remove('open');
+  activeTicketId = null;
+}
+$('closeTicketDetailBtn').addEventListener('click', closeTicketDetail);
+$('closeTicketDetailBtn2').addEventListener('click', closeTicketDetail);
+
+$('deleteTicketDetailBtn').addEventListener('click', async () => {
+  if (!CURRENT_USER || CURRENT_USER.role !== 'admin'){
+    toast('Only Admin can delete tickets.', true);
+    return;
+  }
+  const t = TICKETS.find(x => x.id === activeTicketId);
+  if (!t) return;
+
+  if (!confirm('Delete ticket #' + t.id + '? This cannot be undone.')) return;
+
+  const btn = $('deleteTicketDetailBtn');
+  btn.disabled = true;
+
+  const res = await ticketApi('/tickets/' + t.id, 'DELETE');
+
+  btn.disabled = false;
+
+  if (!res.success){
+    toast(res.message || 'Failed to delete ticket', true);
+    return;
+  }
+
+  closeTicketDetail();
+  toast('Ticket #' + t.id + ' deleted');
+  await loadTickets();
+});
+
+$('saveTicketDetailBtn').addEventListener('click', async () => {
+  if (!CURRENT_USER || CURRENT_USER.role !== 'admin'){
+    toast('Only Admin can update tickets.', true);
+    return;
+  }
+  const t = TICKETS.find(x => x.id === activeTicketId);
+  if (!t) return;
+
+  const note = $('ticketResolutionNote').value.trim();
+  if (pickedTicketStatus === 'resolved' && !note){
+    toast('Add a resolution note before marking resolved.', true);
+    return;
+  }
+
+  const btn = $('saveTicketDetailBtn');
+  btn.disabled = true;
+
+  const res = await ticketApi('/tickets/' + t.id, 'PATCH', {
+    status: pickedTicketStatus,
+    resolution: note,
+    resolvedBy: pickedTicketStatus === 'resolved' ? CURRENT_USER.email : undefined
+  });
+
+  btn.disabled = false;
+
+  if (!res.success){
+    toast(res.message || 'Failed to update ticket', true);
+    return;
+  }
+
+  closeTicketDetail();
+  toast('Ticket #' + t.id + ' updated');
+  await loadTickets();
+});
+
+/* close modals on overlay click or Escape */
+document.querySelectorAll('.modal-overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(o => o.classList.remove('open'));
 });
 </script>
 
