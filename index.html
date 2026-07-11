@@ -465,7 +465,7 @@
             <th>Contact</th>
             <th>Location</th>
             <th>Package</th>
-            <th>Starts</th>
+            <th>Activation date</th>
             <th>Status</th>
             <th>Assign manager</th>
             <th>Cleaner</th>
@@ -1190,11 +1190,37 @@ const COUPON_API_BASE_URL = API_BASE_URL; // change if coupons live on a differe
    security, check credentials against your backend instead.
    ========================================================= */
 const CREDENTIALS = {
-  admin:   { email: "admin@shinesteer.com",   password: "Admin@123" },
-  support: { email: "support@shinesteer.com", password: "Support@123" }
+  admin:   { email: "admin@shinesteer.com",   password: "Sun7!River9#Mint3" },
+  support: { email: "support@shinesteer.com", password: "Cloud8!Stone4#Wave2" }
 };
 
-let CURRENT_USER = null; // { role: 'admin' | 'support', email: '...' }  — kept in memory only (no localStorage)
+/* =========================================================
+   SESSION PERSISTENCE
+   Keeps the signed-in user across page refreshes by storing a
+   small marker in localStorage. This is still just a client-side
+   access gate (see warning above), not real auth — but it stops
+   the dashboard from booting you back to the login screen every
+   time the page reloads.
+   ========================================================= */
+const SESSION_STORAGE_KEY = 'shineSteerAdminSession';
+
+function saveSession(user){
+  try{ localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user)); }catch(e){ /* storage unavailable — ignore */ }
+}
+function loadSession(){
+  try{
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && (parsed.role === 'admin' || parsed.role === 'support') && parsed.email) return parsed;
+    return null;
+  }catch(e){ return null; }
+}
+function clearSession(){
+  try{ localStorage.removeItem(SESSION_STORAGE_KEY); }catch(e){ /* ignore */ }
+}
+
+let CURRENT_USER = null; // { role: 'admin' | 'support', email: '...' } — restored from localStorage on load if present
 
 let ORDERS = [];
 let MANAGERS = [];
@@ -1248,6 +1274,7 @@ function attemptLogin(){
 
   if (email === expected.email.toLowerCase() && password === expected.password){
     CURRENT_USER = { role: selectedRole, email: expected.email };
+    saveSession(CURRENT_USER);
     $('loginError').style.display = 'none';
     showDashboard();
   } else {
@@ -1261,6 +1288,7 @@ $('loginEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') atte
 
 $('logoutBtn').addEventListener('click', () => {
   CURRENT_USER = null;
+  clearSession();
   stopReportAutoRefresh();
   $('loginEmail').value = '';
   $('loginPassword').value = '';
@@ -1403,25 +1431,42 @@ function getApartmentLabel(order) {
   return parts.length ? parts.join(', ') : '—';
 }
 
-// ── NEW: Package name + start date helpers for the Orders table ────────────
-// Package title comes from the populated cart item's packageId. Start date
-// isn't always on the order itself (it's only set once a cleaner is
-// assigned and the wash schedule is generated), so we fall back through
-// every date-ish field that could reasonably represent "when this order's
-// service starts" — order.startDate (wash schedule), then a per-cart-item
-// date the customer picked at checkout, then finally the order's createdOn
-// as a last resort so the column is never blank.
+// ── Package name + ACTIVATION date helpers for the Orders table ────────────
+// Package title comes from the populated cart item's packageId.
+//
+// "Activation date" = order.startDate, the date the wash schedule was
+// actually generated (set server-side in routes/order.js's
+// /assign-cleaner handler, buildWashSchedule()). This is intentionally
+// NOT the same as the booking date (order.createdOn) — a customer can
+// book today and a manager/cleaner might not activate the schedule until
+// later, so this column reflects when service actually started, not when
+// the order was placed. Orders with no cleaner assigned yet have no
+// startDate, so they show "Not activated yet" instead of falling back to
+// the booking date.
 function getPackageName(order){
   return order?.cart?.[0]?.packageId?.packageTitle || '—';
 }
 
-function getStartDateValue(order){
-  return order?.startDate
-    || order?.cart?.[0]?.startDate
-    || order?.cart?.[0]?.selectedDate
-    || order?.serviceStartDate
-    || order?.createdOn
-    || null;
+function getActivationDateValue(order){
+  // Confirmed against your actual routes/order.js and routes/admin.js:
+  //
+  //   - routes/order.js PUT /assign-cleaner (manager app): sets
+  //     order.startDate (via buildWashSchedule()) the FIRST time a cleaner
+  //     is assigned, and ALWAYS sets order.assignedOn on every assignment.
+  //   - routes/admin.js PUT /admin/assign-cleaner (admin panel): sets
+  //     order.assignedOn on every assignment, but never touches startDate.
+  //
+  // So order.assignedOn is the one field guaranteed to be set the moment
+  // ANY order activates, regardless of which of the two routes assigned the
+  // cleaner — no backend change needed, this data is already in your API
+  // response. order.startDate is preferred when present since it's
+  // normalized to midnight of the actual activation day; assignedOn is the
+  // fallback for orders assigned through the admin route.
+  //
+  // Deliberately NOT falling back to order.createdOn (the booking date) —
+  // an order that has no manager/cleaner yet genuinely hasn't activated,
+  // and should keep showing "Not activated yet" rather than a booking date.
+  return order?.startDate || order?.assignedOn || null;
 }
 
 function formatShortDate(value){
@@ -1429,6 +1474,12 @@ function formatShortDate(value){
   const d = new Date(value);
   if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatActivationDate(order){
+  const value = getActivationDateValue(order);
+  if (!value) return '<span style="color:var(--muted);">Not activated yet</span>';
+  return formatShortDate(value);
 }
 
 function statusBadgeClass(status){
@@ -1559,7 +1610,7 @@ function renderTable() {
         <td>${user.phoneNumber || '—'}</td>
         <td>${location}</td>
         <td>${getPackageName(o)}</td>
-        <td>${formatShortDate(getStartDateValue(o))}</td>
+        <td>${formatActivationDate(o)}</td>
         <td><span class="badge ${statusBadgeClass(o.status)}">${statusLabel(o.status)}</span>${washProgressLine(o)}</td>
         <td>${assignCell}</td>
         <td>${cleanerLabel}</td>
@@ -3016,6 +3067,15 @@ document.querySelectorAll('.modal-overlay').forEach(o =>
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(o => o.classList.remove('open'));
 });
+
+/* ---------------- BOOT: restore a saved session on page load/refresh ---------------- */
+(function initSession(){
+  const saved = loadSession();
+  if (saved){
+    CURRENT_USER = saved;
+    showDashboard();
+  }
+})();
 </script>
 
 </body>
