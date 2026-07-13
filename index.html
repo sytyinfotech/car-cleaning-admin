@@ -23,8 +23,19 @@
     --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{
+    margin:0;color:var(--text);font-family:var(--sans);
+    background:
+      radial-gradient(1100px 480px at 12% -10%, rgba(52,211,201,.08), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(155,140,255,.07), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+  }
   ::selection{background:var(--aqua);color:#06201f;}
+  button, .tab, .main-tab, .role-btn, .seg-item, .refresh-btn, .save-icon-btn, .reveal-btn{
+    transition:background-color .15s ease, color .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+  }
+  .stat-card, table, .modal-card{ transition:box-shadow .18s ease, border-color .18s ease; }
 
   /* ---------------- LOGIN SCREEN ---------------- */
   .login-wrap{
@@ -32,8 +43,10 @@
     padding:20px;
   }
   .login-card{
-    width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);
-    border-radius:14px;padding:32px 30px 28px;box-shadow:0 20px 60px rgba(0,0,0,.45);
+    width:100%;max-width:380px;background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 140%);
+    border:1px solid var(--line);
+    border-radius:14px;padding:32px 30px 28px;
+    box-shadow:0 24px 70px rgba(0,0,0,.5), 0 0 0 1px rgba(52,211,201,.05), 0 0 60px rgba(52,211,201,.06);
   }
   .login-brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:22px;}
   .login-brand img{width:42px;height:42px;border-radius:9px;object-fit:cover;}
@@ -68,8 +81,10 @@
   /* ---------------- DASHBOARD (existing) ---------------- */
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
-    padding:18px 28px;border-bottom:1px solid var(--line);background:var(--panel);
+    padding:18px 28px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, var(--panel) 0%, rgba(16,27,45,.92) 100%);
     position:sticky;top:0;z-index:10;
+    box-shadow:0 1px 0 rgba(52,211,201,.06);
   }
   .brand{display:flex;align-items:center;gap:10px;}
   .brand-mark{
@@ -107,13 +122,24 @@
   }
 
   .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
-  .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  .stat-row.five{grid-template-columns:repeat(5,1fr);}
+  .stat-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
+    position:relative;overflow:hidden;
+  }
+  .stat-card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, var(--aqua), var(--violet));
+    opacity:.55;
+  }
+  .stat-card:hover{border-color:rgba(52,211,201,.35);box-shadow:0 10px 26px rgba(0,0,0,.28);transform:translateY(-1px);}
   .stat-label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;}
   .stat-value{font-size:28px;font-weight:700;font-family:var(--mono);}
   .stat-value.aqua{color:var(--aqua);}
   .stat-value.amber{color:var(--amber);}
   .stat-value.violet{color:var(--violet);}
   .stat-value.green{color:var(--green);}
+  .stat-value.red{color:var(--red);}
 
   .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
   .search-box{
@@ -143,6 +169,8 @@
   .badge.completed{color:var(--green);background:rgba(79,209,126,.12);}
   .badge.cancelled{color:var(--red);background:rgba(239,90,111,.12);}
   .badge.unknown{color:var(--muted);background:rgba(141,160,194,.12);}
+  .badge.active-badge{color:var(--green);background:rgba(79,209,126,.12);}
+  .badge.idle-badge{color:var(--muted);background:rgba(141,160,194,.12);}
 
   select.assign-select{background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:7px 10px;font-size:12.5px;font-family:var(--sans);outline:none;min-width:150px;}
   select.assign-select:focus{border-color:var(--aqua);}
@@ -169,10 +197,11 @@
 
   .note-banner{background:rgba(245,185,66,.08);border:1px solid rgba(245,185,66,.3);color:var(--amber);border-radius:8px;padding:12px 16px;font-size:12.5px;margin-bottom:20px;}
 
-  /* ---------------- MAIN VIEW TABS (Orders / Tickets) ---------------- */
-  .main-tabs{display:flex;gap:8px;margin-bottom:22px;}
+  /* ---------------- MAIN VIEW TABS (Orders / Tickets / Report / Managers / Coupons) ---------------- */
+  .main-tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
   .main-tab{padding:10px 18px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13.5px;cursor:pointer;font-weight:600;}
-  .main-tab.active{background:var(--violet);border-color:var(--violet);color:#0e0a26;}
+  .main-tab:hover{color:var(--text);border-color:rgba(155,140,255,.4);}
+  .main-tab.active{background:var(--violet);border-color:var(--violet);color:#0e0a26;box-shadow:0 6px 18px rgba(155,140,255,.25);}
 
   /* ---------------- TICKET BADGES ---------------- */
   .badge.low{color:var(--muted);background:rgba(141,160,194,.12);}
@@ -182,15 +211,44 @@
   .badge.in_progress{color:var(--aqua);background:rgba(52,211,201,.12);}
   .badge.resolved{color:var(--green);background:rgba(79,209,126,.12);}
 
+  /* ---------------- COUPON BADGES ---------------- */
+  .badge.flat{color:var(--aqua);background:rgba(52,211,201,.12);}
+  .badge.percentage{color:var(--violet);background:rgba(155,140,255,.12);}
+  .badge.expired{color:var(--red);background:rgba(239,90,111,.12);}
+
   .raise-ticket-btn{padding:9px 16px;border-radius:8px;border:1px solid var(--violet);background:rgba(155,140,255,.1);color:var(--violet);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;}
   .raise-ticket-btn:hover{background:var(--violet);color:#0e0a26;}
 
   .ticket-desc-cell{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12.5px;}
 
+  /* ---------------- REPORT: manager avatar + progress bar ---------------- */
+  .report-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .report-updated{font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
+  .report-avatar{
+    flex:none;width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;font-family:var(--mono);
+  }
+  .avatar-aqua{background:rgba(52,211,201,.15);color:var(--aqua);}
+  .avatar-violet{background:rgba(155,140,255,.15);color:var(--violet);}
+  .avatar-amber{background:rgba(245,185,66,.15);color:var(--amber);}
+  .avatar-green{background:rgba(79,209,126,.15);color:var(--green);}
+  .avatar-red{background:rgba(239,90,111,.15);color:var(--red);}
+  .mgr-phone-row{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:4px;}
+  .progress-track{flex:1;height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;}
+  .progress-fill{height:6px;border-radius:3px;}
+  .date-range-inputs{display:flex;gap:8px;align-items:center;}
+  .date-range-inputs input[type="date"]{
+    background:var(--bg);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:var(--sans);outline:none;
+  }
+  .date-range-inputs input[type="date"]:focus{border-color:var(--aqua);}
+
   /* ---------------- MODAL ---------------- */
   .modal-overlay{position:fixed;inset:0;background:rgba(5,9,16,.65);display:none;align-items:flex-start;justify-content:center;z-index:200;padding:40px 16px;overflow-y:auto;}
   .modal-overlay.open{display:flex;}
   .modal-card{width:100%;max-width:480px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .modal-card.wide{max-width:760px;}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);}
   .modal-head h2{margin:0;font-size:15px;font-weight:700;}
   .modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;}
@@ -227,12 +285,55 @@
   .mgr-id{font-family:var(--mono);color:var(--violet);font-size:12px;}
   .stat-value.aqua{color:var(--aqua);}
 
+  /* ---------------- REPORT: mockup-style refresh ---------------- */
+  .report-range-seg{
+    display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12.5px;
+  }
+  .report-range-seg .seg-item{
+    padding:8px 14px;color:var(--muted);cursor:pointer;border-left:1px solid var(--line);
+    display:flex;align-items:center;gap:5px;white-space:nowrap;
+  }
+  .report-range-seg .seg-item:first-child{border-left:none;}
+  .report-range-seg .seg-item.active{background:var(--aqua);color:#06201f;font-weight:600;}
+
+  .report-download-solid{
+    display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
+    background:var(--violet);color:#0e0a26;border:none;padding:9px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;
+  }
+  .report-download-solid:hover{background:#ad9fff;}
+  .report-download-solid:active{transform:translateY(1px);}
+  tr.mgr-row:hover{background:rgba(155,140,255,.06);}
+  tr.mgr-row:active{background:rgba(155,140,255,.1);}
+  .login-btn:active, .modal-btn:active, .raise-ticket-btn:active{transform:translateY(1px);}
+
+  .report-table{table-layout:fixed;}
+  .report-table thead th{text-transform:none;font-family:var(--sans);font-weight:500;font-size:12.5px;letter-spacing:0;}
+  .report-table th:nth-child(1), .report-table td:nth-child(1){width:30%;}
+  .report-table th:nth-child(2), .report-table td:nth-child(2){width:12%;}
+  .report-table th:nth-child(3), .report-table td:nth-child(3){width:11%;}
+  .report-table th:nth-child(4), .report-table td:nth-child(4){width:12%;}
+  .report-table th:nth-child(5), .report-table td:nth-child(5){width:20%;}
+  .report-table th:nth-child(6), .report-table td:nth-child(6){width:15%;}
+
+  .mgr-detail-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+  .mgr-detail-summary .mini-stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-align:center;}
+  .mgr-detail-summary .mini-stat .mini-label{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;}
+  .mgr-detail-summary .mini-stat .mini-value{font-size:19px;font-weight:700;font-family:var(--mono);}
+  /* standalone mini-stat, reused by the Cleaner Daily Report summary strip */
+  .mini-stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-align:center;}
+  .mini-stat .mini-label{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;}
+  .mini-stat .mini-value{font-size:19px;font-weight:700;font-family:var(--mono);}
+  .mgr-detail-section-title{font-size:12.5px;font-weight:700;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:6px;}
+  .mgr-detail-section-title .count-pill{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:400;}
+
   @media(max-width:900px){
     .stat-row{grid-template-columns:repeat(2,1fr);}
+    .stat-row.five{grid-template-columns:repeat(2,1fr);}
     .container{padding:18px 14px 40px;}
     table{display:block;overflow-x:auto;}
     .topbar{flex-wrap:wrap;gap:10px;}
     .row2{grid-template-columns:1fr;}
+    .mgr-detail-summary{grid-template-columns:repeat(2,1fr);}
   }
 </style>
 </head>
@@ -267,11 +368,11 @@
     <button class="login-btn" id="loginSubmitBtn">Sign in</button>
     <div class="login-error" id="loginError">Invalid email or password for the selected role.</div>
 
-    <div class="login-hint">
+    <!-- <div class="login-hint">
       <b>Demo credentials</b><br>
       Admin → admin@shinesteer.com / Admin@123<br>
       Support → support@shinesteer.com / Support@123
-    </div>
+    </div> -->
   </div>
 </div>
 
@@ -299,7 +400,9 @@
     <div class="main-tabs">
       <div class="main-tab active" id="mainTabOrders" data-view="orders">Orders</div>
       <div class="main-tab" id="mainTabTickets" data-view="tickets">Tickets</div>
+      <div class="main-tab" id="mainTabReport" data-view="report" style="display:none;">Daily Report</div>
       <div class="main-tab" id="mainTabManagers" data-view="managers" style="display:none;">Managers</div>
+      <div class="main-tab" id="mainTabCoupons" data-view="coupons" style="display:none;">Coupons</div>
     </div>
 
     <!-- ===== ORDERS VIEW ===== -->
@@ -350,9 +453,6 @@
         <div class="tabs" id="filterTabs">
           <div class="tab active" data-filter="all">All</div>
           <div class="tab" data-filter="no-manager">Needs manager</div>
-          <div class="tab" data-filter="no-cleaner">Needs cleaner</div>
-          <div class="tab" data-filter="inProgress">In progress</div>
-          <div class="tab" data-filter="completed">Completed</div>
         </div>
         <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
       </div>
@@ -364,13 +464,15 @@
             <th>Customer</th>
             <th>Contact</th>
             <th>Location</th>
-            <!-- <th>Status</th> -->
+            <th>Package</th>
+            <th>Activation date</th>
+            <th>Status</th>
             <th>Assign manager</th>
             <th>Cleaner</th>
           </tr>
         </thead>
         <tbody id="ordersBody">
-          <tr class="loading-row"><td colspan="7">Loading orders…</td></tr>
+          <tr class="loading-row"><td colspan="9">Loading orders…</td></tr>
         </tbody>
       </table>
     </div>
@@ -439,6 +541,105 @@
       </table>
     </div>
 
+    <!-- ===== DAILY REPORT VIEW ===== -->
+    <div id="reportView" style="display:none;">
+
+      <div class="note-banner" id="reportConfigWarning" style="display:none;">
+        Couldn't reach <code id="reportApiUrlDisplay"></code>. Set <code>API_BASE_URL</code> at the top of
+        the script and make sure <code>/admin/orders</code> and <code>/admin/managers</code> are mounted.
+      </div>
+
+      <div class="report-header">
+        <div>
+          <p style="margin:0;font-size:18px;font-weight:700;">Daily report</p>
+          <p class="report-updated" id="reportDateLabel">—</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="report-range-seg" id="reportRangeTabs">
+            <div class="seg-item active" data-range="today">Today</div>
+            <div class="seg-item" data-range="yesterday">Yesterday</div>
+            <div class="seg-item" data-range="custom">📅 Custom</div>
+          </div>
+          <div class="date-range-inputs" id="reportCustomRange" style="display:none;">
+            <input type="date" id="reportStartDate">
+            <span style="color:var(--muted);font-size:12px;">to</span>
+            <input type="date" id="reportEndDate">
+            <button class="refresh-btn" id="reportApplyCustomBtn">Apply</button>
+          </div>
+          <button class="refresh-btn" id="reportRefreshBtn">↻ Refresh</button>
+          <button class="report-download-solid" id="reportDownloadBtn">⬇ Download Excel</button>
+        </div>
+      </div>
+
+      <!-- One set of numbers, one source of truth: actual wash-day jobs for the
+           selected date range. No duplicate stat rows, no order-status vs
+           wash-day mismatch to puzzle over. -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Jobs scheduled</div>
+          <div class="stat-value" id="cleanerRptAssigned">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value green" id="cleanerRptCompleted">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">In progress</div>
+          <div class="stat-value amber" id="cleanerRptPending">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Missed</div>
+          <div class="stat-value red" id="cleanerRptMissed">0</div>
+        </div>
+      </div>
+
+      <!-- PRIMARY: who did what today -->
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);">
+          <p style="margin:0;font-size:14px;font-weight:600;">Cleaner report <span style="font-weight:400;color:var(--muted);font-size:12px;">· click a row to see their job list</span></p>
+          <p style="margin:0;font-size:12px;color:var(--muted);font-family:var(--mono);" id="cleanerReportCount">0 cleaners</p>
+        </div>
+        <table class="report-table" style="border:none;border-radius:0;">
+          <thead>
+            <tr>
+              <th>Cleaner</th>
+              <th style="text-align:right;">Assigned</th>
+              <th style="text-align:right;">Done</th>
+              <th style="text-align:right;">In progress</th>
+              <th style="text-align:right;">Missed</th>
+              <th>Completion</th>
+            </tr>
+          </thead>
+          <tbody id="cleanerReportBody">
+            <tr class="loading-row"><td colspan="6">Loading cleaner report…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SECONDARY: who's carrying how many orders (useful for assigning new work) -->
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);">
+          <p style="margin:0;font-size:14px;font-weight:600;">Manager overview <span style="font-weight:400;color:var(--muted);font-size:12px;">· click a row for their cleaners &amp; orders</span></p>
+          <p style="margin:0;font-size:12px;color:var(--muted);font-family:var(--mono);" id="reportMgrCount">0 managers</p>
+        </div>
+        <table class="report-table" style="border:none;border-radius:0;">
+          <thead>
+            <tr>
+              <th>Manager</th>
+              <th style="text-align:right;">Assigned</th>
+              <th style="text-align:right;">Done</th>
+              <th style="text-align:right;">In prog.</th>
+              <th>Completion</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reportManagersBody">
+            <tr class="loading-row"><td colspan="6">Loading report…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ===== MANAGERS VIEW (Admin only) ===== -->
     <div id="managersView" style="display:none;">
 
@@ -487,6 +688,67 @@
         </thead>
         <tbody id="managersBody">
           <tr class="loading-row"><td colspan="6">Loading managers…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== COUPONS VIEW (Admin only) ===== -->
+    <div id="couponsView" style="display:none;">
+
+      <div class="note-banner" id="couponConfigWarning" style="display:none;">
+        Couldn't reach <code id="couponApiUrlDisplay"></code>. Set <code>COUPON_API_BASE_URL</code> at the top of
+        the script and make sure your <code>/coupon</code> routes are mounted on your server.
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Total coupons</div>
+          <div class="stat-value violet" id="couponStatTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active</div>
+          <div class="stat-value green" id="couponStatActive">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Expired</div>
+          <div class="stat-value red" id="couponStatExpired">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total redemptions</div>
+          <div class="stat-value aqua" id="couponStatUsed">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="couponSearchInput" placeholder="Search by coupon code...">
+        </div>
+        <div class="tabs" id="couponFilterTabs">
+          <div class="tab active" data-filter="all">All</div>
+          <div class="tab" data-filter="active">Active</div>
+          <div class="tab" data-filter="inactive">Inactive</div>
+          <div class="tab" data-filter="expired">Expired</div>
+        </div>
+        <button class="raise-ticket-btn" id="addCouponBtn">+ Create coupon</button>
+        <button class="refresh-btn" id="couponRefreshBtn">↻ Refresh</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Discount</th>
+            <th>Min order</th>
+            <th>Usage</th>
+            <th>Expires</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="couponsBody">
+          <tr class="loading-row"><td colspan="8">Loading coupons…</td></tr>
         </tbody>
       </table>
     </div>
@@ -598,6 +860,106 @@
   </div>
 </div>
 
+<!-- ===== MANAGER DETAIL MODAL (Daily Report drill-down) ===== -->
+<div class="modal-overlay" id="managerDetailOverlay">
+  <div class="modal-card wide">
+    <div class="modal-head">
+      <div>
+        <h2 id="mgrDetailName">Manager</h2>
+        <div id="mgrDetailMeta" style="font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-top:2px;">—</div>
+      </div>
+      <button class="modal-close" id="closeManagerDetailBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="mgr-detail-summary">
+        <div class="mini-stat">
+          <div class="mini-label">Cleaners</div>
+          <div class="mini-value" id="mgrDetailCleanerCount" style="color:var(--violet);">0</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-label">Orders assigned</div>
+          <div class="mini-value" id="mgrDetailOrderCount">0</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-label">Completed</div>
+          <div class="mini-value" id="mgrDetailCompletedCount" style="color:var(--green);">0</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-label">In progress</div>
+          <div class="mini-value" id="mgrDetailInProgressCount" style="color:var(--amber);">0</div>
+        </div>
+      </div>
+
+      <div class="mgr-detail-section-title">Cleaners under this manager <span class="count-pill">(selected date range)</span></div>
+      <table style="border:1px solid var(--line);">
+        <thead>
+          <tr>
+            <th>Cleaner</th>
+            <th style="text-align:right;">Assigned</th>
+            <th style="text-align:right;">Completed</th>
+            <th style="text-align:right;">In prog.</th>
+            <th style="text-align:right;">Completion</th>
+          </tr>
+        </thead>
+        <tbody id="mgrDetailCleanersBody">
+          <tr><td colspan="5"><div class="empty-state">—</div></td></tr>
+        </tbody>
+      </table>
+
+      <div class="mgr-detail-section-title">Orders assigned to this manager <span class="count-pill">(selected date range)</span></div>
+      <table style="border:1px solid var(--line);">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Cleaner</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="mgrDetailOrdersBody">
+          <tr><td colspan="4"><div class="empty-state">—</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" id="closeManagerDetailBtn2">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CLEANER DETAIL MODAL (Daily Report drill-down) ===== -->
+<div class="modal-overlay" id="cleanerDetailOverlay">
+  <div class="modal-card wide">
+    <div class="modal-head">
+      <div>
+        <h2 id="cleanerDetailName">Cleaner</h2>
+        <div id="cleanerDetailMeta" style="font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-top:2px;">—</div>
+      </div>
+      <button class="modal-close" id="closeCleanerDetailBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="mgr-detail-section-title">Job list <span class="count-pill">(selected date range)</span></div>
+      <table style="border:1px solid var(--line);">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Package</th>
+            <th>Day</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="cleanerDetailJobsBody">
+          <tr><td colspan="5"><div class="empty-state">—</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" id="closeCleanerDetailBtn2">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== EDIT MANAGER MODAL (Admin only) ===== -->
 <div class="modal-overlay" id="editManagerOverlay">
   <div class="modal-card">
@@ -697,6 +1059,119 @@
   </div>
 </div>
 
+<!-- ===== ADD / EDIT COUPON MODAL (Admin only) ===== -->
+<div class="modal-overlay" id="couponFormOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="couponFormTitle">Create coupon</h2>
+      <button class="modal-close" id="closeCouponFormBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="couponFormId">
+      <div class="row2">
+        <div class="field">
+          <label for="couponCode">Coupon code <span style="color:var(--red);">*</span></label>
+          <input type="text" id="couponCode" placeholder="e.g. SAVE100" style="text-transform:uppercase;">
+        </div>
+        <div class="field">
+          <label for="couponIsActive">Status</label>
+          <select id="couponIsActive">
+            <option value="true" selected>Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="couponDiscountType">Discount type <span style="color:var(--red);">*</span></label>
+          <select id="couponDiscountType">
+            <option value="flat">Flat (₹ off)</option>
+            <option value="percentage">Percentage (% off)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="couponDiscountValue">Discount value <span style="color:var(--red);">*</span></label>
+          <input type="number" id="couponDiscountValue" placeholder="e.g. 100" min="0">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="couponMinOrder">Minimum order amount (₹)</label>
+          <input type="number" id="couponMinOrder" placeholder="0" min="0">
+        </div>
+        <div class="field" id="couponMaxDiscountField">
+          <label for="couponMaxDiscount">Max discount cap (₹, % only)</label>
+          <input type="number" id="couponMaxDiscount" placeholder="No cap" min="0">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="couponUsageLimit">Usage limit (total uses)</label>
+          <input type="number" id="couponUsageLimit" placeholder="Unlimited" min="0">
+        </div>
+        <div class="field">
+          <label for="couponExpiresAt">Expiry date</label>
+          <input type="date" id="couponExpiresAt">
+        </div>
+      </div>
+      <div class="field">
+        <label for="couponDescription">Description (internal note)</label>
+        <textarea id="couponDescription" placeholder="e.g. Launch week promo for new customers"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" id="cancelCouponFormBtn">Cancel</button>
+      <button class="modal-btn primary" id="submitCouponFormBtn">Create coupon</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COUPON DETAIL MODAL (Admin only) ===== -->
+<div class="modal-overlay" id="couponDetailOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="couponDetailTitle">Coupon</h2>
+      <button class="modal-close" id="closeCouponDetailBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="ro-block">
+        <div class="ro-label">Discount</div>
+        <div class="ro-value" id="couponDetailDiscount">—</div>
+      </div>
+      <div class="row2">
+        <div class="ro-block" style="margin-bottom:0;">
+          <div class="ro-label">Min order</div>
+          <div class="ro-value" id="couponDetailMinOrder">—</div>
+        </div>
+        <div class="ro-block" style="margin-bottom:0;">
+          <div class="ro-label">Max discount cap</div>
+          <div class="ro-value" id="couponDetailMaxDiscount">—</div>
+        </div>
+      </div>
+      <div class="row2" style="margin-top:14px;">
+        <div class="ro-block" style="margin-bottom:0;">
+          <div class="ro-label">Usage</div>
+          <div class="ro-value" id="couponDetailUsage">—</div>
+        </div>
+        <div class="ro-block" style="margin-bottom:0;">
+          <div class="ro-label">Expires</div>
+          <div class="ro-value" id="couponDetailExpires">—</div>
+        </div>
+      </div>
+      <div class="ro-block" style="margin-top:14px;">
+        <div class="ro-label">Description</div>
+        <div class="ro-value" id="couponDetailDescription">—</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="couponDetailMeta" style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-right:auto;">—</span>
+      <button class="modal-btn ghost" id="deleteCouponDetailBtn" style="color:var(--red);border-color:var(--red);">Delete</button>
+      <button class="modal-btn ghost" id="closeCouponDetailBtn2">Close</button>
+      <button class="modal-btn primary" id="editCouponDetailBtn">Edit</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -712,6 +1187,7 @@ const API_BASE_URL = "https://shine-steer-cleaning-8cba71055cb7.herokuapp.com";
 // const API_BASE_URL = "http://localhost:5000";
   
 const TICKET_API_BASE_URL = API_BASE_URL; // change if tickets live on a different host
+const COUPON_API_BASE_URL = API_BASE_URL; // change if coupons live on a different host — routes mounted at /coupon
 
 /* =========================================================
    HARDCODED LOGIN CREDENTIALS
@@ -721,11 +1197,37 @@ const TICKET_API_BASE_URL = API_BASE_URL; // change if tickets live on a differe
    security, check credentials against your backend instead.
    ========================================================= */
 const CREDENTIALS = {
-  admin:   { email: "admin@shinesteer.com",   password: "Admin@123" },
-  support: { email: "support@shinesteer.com", password: "Support@123" }
+  admin:   { email: "admin@shinesteer.com",   password: "Sun7!River9#Mint3" },
+  support: { email: "support@shinesteer.com", password: "Cloud8!Stone4#Wave2" }
 };
 
-let CURRENT_USER = null; // { role: 'admin' | 'support', email: '...' }  — kept in memory only (no localStorage)
+/* =========================================================
+   SESSION PERSISTENCE
+   Keeps the signed-in user across page refreshes by storing a
+   small marker in localStorage. This is still just a client-side
+   access gate (see warning above), not real auth — but it stops
+   the dashboard from booting you back to the login screen every
+   time the page reloads.
+   ========================================================= */
+const SESSION_STORAGE_KEY = 'shineSteerAdminSession';
+
+function saveSession(user){
+  try{ localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user)); }catch(e){ /* storage unavailable — ignore */ }
+}
+function loadSession(){
+  try{
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && (parsed.role === 'admin' || parsed.role === 'support') && parsed.email) return parsed;
+    return null;
+  }catch(e){ return null; }
+}
+function clearSession(){
+  try{ localStorage.removeItem(SESSION_STORAGE_KEY); }catch(e){ /* ignore */ }
+}
+
+let CURRENT_USER = null; // { role: 'admin' | 'support', email: '...' } — restored from localStorage on load if present
 
 let ORDERS = [];
 let MANAGERS = [];
@@ -741,6 +1243,22 @@ let MANAGERS_LIST = [];
 let mgrSearch = '';
 // Store newly-created passwords in memory for this session only (not persisted)
 const MGR_PLAIN_PASSWORDS = {};
+
+// ── Coupons state ────────────────────────────────────────────────────────────
+let COUPONS = [];
+let couponFilter = 'all';
+let activeCouponId = null;
+let couponFormMode = 'create'; // 'create' | 'edit'
+
+// ── Daily Report state ────────────────────────────────────────────────────────
+let REPORT_ORDERS = [];
+let REPORT_MANAGERS = [];
+let reportRange = 'today'; // 'today' | 'yesterday' | 'custom'
+let reportCustomStart = null;
+let reportCustomEnd = null;
+let reportAutoRefreshTimer = null;   // setInterval handle, only active while report tab is open
+let isLoadingReport = false;          // guards against overlapping fetches if a request runs long
+const REPORT_AUTO_REFRESH_MS = 20000; // 20s
 
 const $ = (id) => document.getElementById(id);
 
@@ -763,6 +1281,7 @@ function attemptLogin(){
 
   if (email === expected.email.toLowerCase() && password === expected.password){
     CURRENT_USER = { role: selectedRole, email: expected.email };
+    saveSession(CURRENT_USER);
     $('loginError').style.display = 'none';
     showDashboard();
   } else {
@@ -776,6 +1295,8 @@ $('loginEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') atte
 
 $('logoutBtn').addEventListener('click', () => {
   CURRENT_USER = null;
+  clearSession();
+  stopReportAutoRefresh();
   $('loginEmail').value = '';
   $('loginPassword').value = '';
   $('dashboardScreen').style.display = 'none';
@@ -794,7 +1315,13 @@ function showDashboard(){
   $('supportBanner').style.display = isAdmin ? 'none' : 'block';
   $('ticketSupportBanner').style.display = isAdmin ? 'none' : 'block';
   $('raiseTicketBtn').style.display = isAdmin ? 'none' : 'inline-block';
+  $('mainTabReport').style.display = isAdmin ? 'inline-block' : 'none';
   $('mainTabManagers').style.display = isAdmin ? 'inline-block' : 'none';
+  $('mainTabCoupons').style.display = isAdmin ? 'inline-block' : 'none';
+
+  // Support accounts land on Orders regardless of which tab was active on a
+  // prior session — Daily Report / Coupons are admin-only views.
+  if (!isAdmin) switchMainView('orders');
 
   loadAll();
 }
@@ -813,7 +1340,8 @@ async function api(path, method='GET', body=null){
   try{
     const res = await fetch(API_BASE_URL + path, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store', // always hit the server fresh — never serve a stale cached status
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
       body: body ? JSON.stringify(body) : undefined
     });
     return await res.json();
@@ -828,7 +1356,8 @@ async function ticketApi(path, method='GET', body=null){
   try{
     const res = await fetch(TICKET_API_BASE_URL + path, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
       body: body ? JSON.stringify(body) : undefined
     });
     return await res.json();
@@ -839,8 +1368,24 @@ async function ticketApi(path, method='GET', body=null){
   }
 }
 
+async function couponApi(path, method='GET', body=null){
+  try{
+    const res = await fetch(COUPON_API_BASE_URL + path, {
+      method,
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    return await res.json();
+  } catch(e){
+    $('couponApiUrlDisplay').textContent = COUPON_API_BASE_URL;
+    $('couponConfigWarning').style.display = 'block';
+    return { success:false, message:'Could not reach the server.' };
+  }
+}
+
 async function loadAll(){
-  $('ordersBody').innerHTML = '<tr class="loading-row"><td colspan="7">Loading orders…</td></tr>';
+  $('ordersBody').innerHTML = '<tr class="loading-row"><td colspan="9">Loading orders…</td></tr>';
   const [ordersRes, managersRes, cleanersRes] = await Promise.all([
     api('/admin/orders', 'GET'),
     api('/admin/managers', 'GET'),
@@ -877,7 +1422,7 @@ function getApartmentLabel(order) {
       order.serviceLocation.flatNo ? 'Flat ' + order.serviceLocation.flatNo : '',
       order.serviceLocation.parkingNo ? 'Parking ' + order.serviceLocation.parkingNo : ''
     ].filter(Boolean);
-    
+
     if (parts.length) {
       let location = parts.join(', ');
       if (order.serviceLocation.specialInstructions) {
@@ -886,11 +1431,62 @@ function getApartmentLabel(order) {
       return location;
     }
   }
-  
+
   // If no serviceLocation, use the user's signup address as fallback
   const user = order?.userId || {};
   const parts = [user.addressLine, user.cityState, user.pincode].filter(Boolean);
   return parts.length ? parts.join(', ') : '—';
+}
+
+// ── Package name + ACTIVATION date helpers for the Orders table ────────────
+// Package title comes from the populated cart item's packageId.
+//
+// "Activation date" = order.startDate, the date the wash schedule was
+// actually generated (set server-side in routes/order.js's
+// /assign-cleaner handler, buildWashSchedule()). This is intentionally
+// NOT the same as the booking date (order.createdOn) — a customer can
+// book today and a manager/cleaner might not activate the schedule until
+// later, so this column reflects when service actually started, not when
+// the order was placed. Orders with no cleaner assigned yet have no
+// startDate, so they show "Not activated yet" instead of falling back to
+// the booking date.
+function getPackageName(order){
+  return order?.cart?.[0]?.packageId?.packageTitle || '—';
+}
+
+function getActivationDateValue(order){
+  // Confirmed against your actual routes/order.js and routes/admin.js:
+  //
+  //   - routes/order.js PUT /assign-cleaner (manager app): sets
+  //     order.startDate (via buildWashSchedule()) the FIRST time a cleaner
+  //     is assigned, and ALWAYS sets order.assignedOn on every assignment.
+  //   - routes/admin.js PUT /admin/assign-cleaner (admin panel): sets
+  //     order.assignedOn on every assignment, but never touches startDate.
+  //
+  // So order.assignedOn is the one field guaranteed to be set the moment
+  // ANY order activates, regardless of which of the two routes assigned the
+  // cleaner — no backend change needed, this data is already in your API
+  // response. order.startDate is preferred when present since it's
+  // normalized to midnight of the actual activation day; assignedOn is the
+  // fallback for orders assigned through the admin route.
+  //
+  // Deliberately NOT falling back to order.createdOn (the booking date) —
+  // an order that has no manager/cleaner yet genuinely hasn't activated,
+  // and should keep showing "Not activated yet" rather than a booking date.
+  return order?.startDate || order?.assignedOn || null;
+}
+
+function formatShortDate(value){
+  if (!value) return '—';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatActivationDate(order){
+  const value = getActivationDateValue(order);
+  if (!value) return '<span style="color:var(--muted);">Not activated yet</span>';
+  return formatShortDate(value);
 }
 
 function statusBadgeClass(status){
@@ -898,10 +1494,29 @@ function statusBadgeClass(status){
   return known.includes(status) ? status : 'unknown';
 }
 
+function statusLabel(status){
+  return { pending: 'Pending', inProgress: 'In progress', completed: 'Completed', cancelled: 'Cancelled' }[status]
+    || (status || 'Unknown');
+}
+
+// Renders a small "X/Y days done" line under a status badge, using the
+// washProgress field added by the /admin/orders backend patch. Returns ''
+// for single-day orders or orders with no wash schedule yet, so it stays
+// invisible unless it's actually informative — this is what tells you a
+// cleaner really did finish today's job even while the order itself is
+// still correctly showing "In progress" for a multi-day package.
+function washProgressLine(order){
+  const wp = order?.washProgress;
+  if (!wp || !wp.total || wp.total <= 1) return '';
+  const pct = Math.round((wp.completed / wp.total) * 100);
+  const color = wp.completed >= wp.total ? 'var(--green)' : 'var(--muted)';
+  return `<div style="font-size:10.5px;color:${color};margin-top:3px;">${wp.completed}/${wp.total} wash days done</div>`;
+}
+
 function matchesSearch(order, q) {
   if (!q) return true;
   q = q.toLowerCase();
-  
+
   // Get service location as searchable text
   let locationText = '';
   if (order.serviceLocation) {
@@ -913,23 +1528,20 @@ function matchesSearch(order, q) {
     ].filter(Boolean);
     locationText = parts.join(' ');
   }
-  
+
   const hay = [
     order.orderId,
     order?.userId?.username,
     order?.userId?.phoneNumber,
     locationText // Added service location to search
   ].filter(Boolean).join(' ').toLowerCase();
-  
+
   return hay.includes(q);
 }
 
 function passesFilter(order){
   switch(currentFilter){
     case 'no-manager': return !order.assignedManager;
-    case 'no-cleaner': return !!order.assignedManager && !order.assignedTo;
-    case 'inProgress': return order.status === 'inProgress';
-    case 'completed': return order.status === 'completed';
     default: return true;
   }
 }
@@ -941,7 +1553,7 @@ function renderTable() {
 
   if (!rows.length) {
     $('ordersBody').innerHTML = `
-      <tr><td colspan="7">
+      <tr><td colspan="9">
         <div class="empty-state">No orders match this view.</div>
       </td></tr>`;
     return;
@@ -953,7 +1565,7 @@ function renderTable() {
 
     // ---- GET SERVICE LOCATION FROM ORDER (NO FALLBACK TO USER ADDRESS) ----
     let location = '—';
-    
+
     // Only use serviceLocation from the order
     if (o.serviceLocation) {
       const parts = [
@@ -962,7 +1574,7 @@ function renderTable() {
         o.serviceLocation.flatNo ? 'Flat ' + o.serviceLocation.flatNo : '',
         o.serviceLocation.parkingNo ? 'Parking ' + o.serviceLocation.parkingNo : ''
       ].filter(Boolean);
-      
+
       if (parts.length) {
         location = parts.join(', ');
         // Add special instructions if present
@@ -1003,7 +1615,10 @@ function renderTable() {
           <div class="cust-meta">${user.email || ''}</div>
         </td>
         <td>${user.phoneNumber || '—'}</td>
-        <td>${location}</td> <!-- ONLY SHOWS SERVICE ADDRESS -->
+        <td>${location}</td>
+        <td>${getPackageName(o)}</td>
+        <td>${formatActivationDate(o)}</td>
+        <td><span class="badge ${statusBadgeClass(o.status)}">${statusLabel(o.status)}</span>${washProgressLine(o)}</td>
         <td>${assignCell}</td>
         <td>${cleanerLabel}</td>
       </tr>
@@ -1016,7 +1631,7 @@ function renderTable() {
         const orderId = e.currentTarget.getAttribute('data-save-manager');
         const select = document.querySelector(`select.manager-select[data-order="${orderId}"]`);
         const managerId = select.value;
-        
+
         btn.disabled = true;
         const res = await api('/admin/assign-manager', 'PUT', { orderId, managerId });
         btn.disabled = false;
@@ -1044,21 +1659,33 @@ document.querySelectorAll('#filterTabs .tab').forEach(tab => {
 });
 
 /* =========================================================================
-   MAIN VIEW SWITCH (Orders / Tickets)
+   MAIN VIEW SWITCH (Orders / Tickets / Report / Managers / Coupons)
    ========================================================================= */
 $('mainTabOrders').addEventListener('click', () => switchMainView('orders'));
 $('mainTabTickets').addEventListener('click', () => switchMainView('tickets'));
+$('mainTabReport').addEventListener('click', () => switchMainView('report'));
 $('mainTabManagers').addEventListener('click', () => switchMainView('managers'));
+$('mainTabCoupons').addEventListener('click', () => switchMainView('coupons'));
 
 function switchMainView(view){
   $('ordersView').style.display   = view === 'orders'   ? 'block' : 'none';
   $('ticketsView').style.display  = view === 'tickets'  ? 'block' : 'none';
+  $('reportView').style.display   = view === 'report'   ? 'block' : 'none';
   $('managersView').style.display = view === 'managers' ? 'block' : 'none';
+  $('couponsView').style.display  = view === 'coupons'  ? 'block' : 'none';
   $('mainTabOrders').classList.toggle('active',   view === 'orders');
   $('mainTabTickets').classList.toggle('active',  view === 'tickets');
+  $('mainTabReport').classList.toggle('active',   view === 'report');
   $('mainTabManagers').classList.toggle('active', view === 'managers');
+  $('mainTabCoupons').classList.toggle('active',  view === 'coupons');
   if (view === 'tickets')  loadTickets();
+  if (view === 'report'){  loadDailyReport(); loadCleanerDailyReport(); }
   if (view === 'managers') loadManagers();
+  if (view === 'coupons')  loadCoupons();
+
+  // Auto-refresh only while the Daily Report tab is actually visible.
+  if (view === 'report') startReportAutoRefresh();
+  else stopReportAutoRefresh();
 }
 
 /* =========================================================================
@@ -1303,6 +1930,619 @@ $('saveTicketDetailBtn').addEventListener('click', async () => {
 });
 
 /* =========================================================================
+   DAILY REPORT — real data from /admin/orders + /admin/managers
+   (same "old" API as before — no new backend routes)
+
+   Everything on this tab is scoped to the SAME selected date range
+   (Today / Yesterday / Custom). Click a manager row to drill into their
+   cleaners and every order behind those numbers.
+   ========================================================================= */
+
+function getReportDateRange(){
+  const now = new Date();
+
+  if (reportRange === 'today'){
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    return { start, end };
+  }
+
+  if (reportRange === 'yesterday'){
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    return { start, end };
+  }
+
+  // custom
+  if (reportCustomStart && reportCustomEnd){
+    const start = new Date(reportCustomStart + 'T00:00:00');
+    const end = new Date(reportCustomEnd + 'T00:00:00');
+    end.setDate(end.getDate() + 1); // inclusive of end date
+    return { start, end };
+  }
+
+  // fallback — today
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { start, end };
+}
+
+function formatReportDateLabel(){
+  const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  const now = new Date();
+  const nowStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+  if (reportRange === 'today'){
+    return `${now.toLocaleDateString('en-IN', opts)} · Last updated ${nowStr}`;
+  }
+  if (reportRange === 'yesterday'){
+    const y = new Date(now); y.setDate(y.getDate() - 1);
+    return `${y.toLocaleDateString('en-IN', opts)} · Last updated ${nowStr}`;
+  }
+  if (reportCustomStart && reportCustomEnd){
+    const s = new Date(reportCustomStart + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    const e = new Date(reportCustomEnd + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    return `${s} — ${e} · Last updated ${nowStr}`;
+  }
+  return `Last updated ${nowStr}`;
+}
+
+async function loadDailyReport(isBackgroundRefresh = false){
+  if (isLoadingReport) return; // a fetch is already in flight — skip this tick
+  isLoadingReport = true;
+
+  // Only show the "Loading…" placeholder on the initial/manual load — an
+  // auto-refresh tick shouldn't blank out the table the user is looking at.
+  if (!isBackgroundRefresh){
+    $('reportManagersBody').innerHTML = '<tr class="loading-row"><td colspan="6">Loading report…</td></tr>';
+  }
+
+  try {
+    const [ordersRes, managersRes] = await Promise.all([
+      api('/admin/orders', 'GET'),
+      api('/admin/managers', 'GET')
+    ]);
+
+    if (!ordersRes.success || !managersRes.success){
+      $('reportApiUrlDisplay').textContent = API_BASE_URL;
+      $('reportConfigWarning').style.display = 'block';
+      if (!isBackgroundRefresh) toast('Failed to load report data', true);
+    } else {
+      $('reportConfigWarning').style.display = 'none';
+    }
+
+    REPORT_ORDERS = ordersRes.success ? (ordersRes.orders || []) : [];
+    REPORT_MANAGERS = managersRes.success ? (managersRes.managers || []) : [];
+
+    renderDailyReport();
+
+    // If the manager detail modal is open, refresh it in place too, so an
+    // auto-refresh tick doesn't leave it showing stale numbers.
+    if ($('managerDetailOverlay').classList.contains('open') && activeManagerDetailKey){
+      openManagerDetail(activeManagerDetailKey, true);
+    }
+  } finally {
+    isLoadingReport = false;
+  }
+}
+
+// Starts polling /admin/orders + /admin/managers every REPORT_AUTO_REFRESH_MS
+// so a manager's Done count ticks up as soon as an order is completed
+// elsewhere (cleaner app, manager app, etc), without needing a manual
+// refresh. Only ever running while the Daily Report tab is on screen.
+function startReportAutoRefresh(){
+  stopReportAutoRefresh(); // clear any existing timer first, avoid duplicates
+  reportAutoRefreshTimer = setInterval(() => {
+    loadDailyReport(true); // background = true, no loading flicker
+    loadCleanerDailyReport(true);
+  }, REPORT_AUTO_REFRESH_MS);
+}
+
+function stopReportAutoRefresh(){
+  if (reportAutoRefreshTimer){
+    clearInterval(reportAutoRefreshTimer);
+    reportAutoRefreshTimer = null;
+  }
+}
+
+// Robustly pull the manager identifier off an order, whatever shape the
+// backend sends (populated object, raw ObjectId string, or employeeId string).
+function getOrderManagerId(o){
+  const am = o.assignedManager;
+  if (!am) return null;
+  if (typeof am === 'string') return am;
+  return am._id || am.employeeId || null;
+}
+
+// Compares an order's assigned-manager id against a manager record, checking
+// both _id and employeeId (as strings) so ObjectId-vs-string mismatches don't
+// silently zero everything out.
+function orderBelongsToManager(o, m){
+  const mgrId = getOrderManagerId(o);
+  if (!mgrId) return false;
+  return String(mgrId) === String(m._id) || String(mgrId) === String(m.employeeId);
+}
+
+// Robustly pull the cleaner identifier off an order (populated object, raw
+// ObjectId string, or employeeId string) — mirrors getOrderManagerId above.
+function getOrderCleanerId(o){
+  const at = o.assignedTo;
+  if (!at) return null;
+  if (typeof at === 'string') return at;
+  return at._id || at.employeeId || null;
+}
+
+function getOrdersInRange(){
+  const { start, end } = getReportDateRange();
+  return REPORT_ORDERS.filter(o => {
+    const d = new Date(o.createdOn);
+    return d >= start && d < end;
+  });
+}
+
+// Orders "belonging" to a manager for report purposes are keyed off WHEN
+// they were assigned to that manager (assignedManagerOn), not when the
+// order was originally booked (createdOn). Otherwise assigning an
+// older/yesterday's order to a manager today would never show up in
+// "Today"'s report, since the order's createdOn date never changes.
+// Falls back to createdOn only for legacy orders that predate the
+// assignedManagerOn field.
+//
+// This same "assigned in range" bucket is what drives EVERY number on this
+// tab now — the manager table, the modal summary, the cleaner breakdown,
+// and the order list — so a manager's Done/Completion% always matches
+// whatever the modal shows underneath it.
+function getOrdersAssignedInRange(){
+  const { start, end } = getReportDateRange();
+  return REPORT_ORDERS.filter(o => {
+    if (!o.assignedManager) return false;
+    const refDate = new Date(o.assignedManagerOn || o.createdOn);
+    return refDate >= start && refDate < end;
+  });
+}
+
+function getManagerRangeOrders(m){
+  return getOrdersAssignedInRange().filter(o => orderBelongsToManager(o, m));
+}
+
+// Cleaner breakdown for one manager, scoped to the SAME range as everything
+// else on this tab (not all-time) — this is what the modal's "Cleaners"
+// table is built from.
+function getCleanerBreakdownForManager(m){
+  const orders = getManagerRangeOrders(m);
+  const byCleaner = {};
+
+  orders.forEach(o => {
+    const cleanerObj = (o.assignedTo && typeof o.assignedTo === 'object') ? o.assignedTo : null;
+    const cid = getOrderCleanerId(o);
+    if (!cid) return; // manager hasn't handed this one to a cleaner yet
+
+    if (!byCleaner[cid]) {
+      byCleaner[cid] = {
+        cleaner: cleanerObj || { username: 'Unknown', employeeId: cid },
+        total: 0, completed: 0, inProgress: 0, pending: 0,
+        washDaysTotal: 0, washDaysCompleted: 0, // ← NEW: actual day-by-day progress, not just order status
+      };
+    }
+    const bucket = byCleaner[cid];
+    bucket.total++;
+    if (o.status === 'completed') bucket.completed++;
+    else if (o.status === 'inProgress') bucket.inProgress++;
+    else if (o.status === 'pending') bucket.pending++;
+
+    if (o.washProgress) {
+      bucket.washDaysTotal += o.washProgress.total || 0;
+      bucket.washDaysCompleted += o.washProgress.completed || 0;
+    }
+  });
+
+  return Object.values(byCleaner).sort((a, b) => b.completed - a.completed);
+}
+
+let LAST_MANAGER_ROWS = []; // cache of the last-rendered manager rows, keyed for the modal
+
+// ── Cleaner Daily Report state (wash-day level, admin-wide) ────────────────
+let CLEANER_DAILY_REPORT = null;
+
+// Formats a JS Date as 'YYYY-MM-DD' using the BROWSER's local date parts —
+// matches how Today/Yesterday/Custom are already computed elsewhere on this
+// tab (getReportDateRange above), so the cleaner report always covers the
+// exact same calendar days the manager table above it is showing.
+function dateKeyFromDate(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getReportDateKeys(){
+  if (reportRange === 'yesterday'){
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const key = dateKeyFromDate(y);
+    return { startDate: key, endDate: key };
+  }
+  if (reportRange === 'custom' && reportCustomStart && reportCustomEnd){
+    return { startDate: reportCustomStart, endDate: reportCustomEnd };
+  }
+  // 'today' and the custom-not-yet-applied fallback
+  const key = dateKeyFromDate(new Date());
+  return { startDate: key, endDate: key };
+}
+
+async function loadCleanerDailyReport(isBackgroundRefresh = false){
+  if (!isBackgroundRefresh){
+    $('cleanerReportBody').innerHTML = '<tr class="loading-row"><td colspan="6">Loading cleaner report…</td></tr>';
+  }
+  const { startDate, endDate } = getReportDateKeys();
+  const res = await api(`/admin/cleaner-daily-report?startDate=${startDate}&endDate=${endDate}`, 'GET');
+  CLEANER_DAILY_REPORT = res.success ? res : null;
+  renderCleanerDailyReport();
+}
+
+function renderCleanerDailyReport(){
+  const summary = CLEANER_DAILY_REPORT?.summary || { totalAssigned: 0, totalCompleted: 0, totalPending: 0, totalMissed: 0 };
+  $('cleanerRptAssigned').textContent = summary.totalAssigned;
+  $('cleanerRptCompleted').textContent = summary.totalCompleted;
+  $('cleanerRptPending').textContent = summary.totalPending;
+  $('cleanerRptMissed').textContent = summary.totalMissed;
+
+  const cleaners = CLEANER_DAILY_REPORT?.cleaners || [];
+  $('cleanerReportCount').textContent = `${cleaners.length} cleaner${cleaners.length !== 1 ? 's' : ''}`;
+
+  if (!cleaners.length){
+    $('cleanerReportBody').innerHTML = `<tr><td colspan="6"><div class="empty-state">No wash jobs scheduled in this range.</div></td></tr>`;
+    return;
+  }
+
+  $('cleanerReportBody').innerHTML = cleaners.map(c => {
+    const pct = c.assigned > 0 ? Math.round((c.completed / c.assigned) * 100) : 0;
+    const barColor = pct >= 70 ? 'var(--green)' : pct >= 40 ? 'var(--amber)' : 'var(--red)';
+    return `
+      <tr class="mgr-row" data-cleaner-open="${escapeHtml(c.cleanerId)}" style="cursor:pointer;">
+        <td>
+          <div class="cust-name">${escapeHtml(c.cleanerName)}</div>
+          <div class="cust-meta">${escapeHtml(c.employeeId || '')}${c.phoneNumber ? ' · ☎ ' + escapeHtml(String(c.phoneNumber)) : ''}</div>
+        </td>
+        <td style="text-align:right;">${c.assigned}</td>
+        <td style="text-align:right;color:var(--green);font-weight:600;">${c.completed}</td>
+        <td style="text-align:right;color:var(--amber);">${c.pending}</td>
+        <td style="text-align:right;color:var(--red);">${c.missed}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${barColor};"></div></div>
+            <span style="font-size:12px;color:var(--muted);min-width:32px;text-align:right;">${pct}%</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('#cleanerReportBody tr[data-cleaner-open]').forEach(row => {
+    row.addEventListener('click', () => openCleanerDetail(row.getAttribute('data-cleaner-open')));
+  });
+}
+
+// ── Cleaner Detail Modal — shows one cleaner's actual job list for the
+// selected range. Uses data already returned by /admin/cleaner-daily-report
+// (the `jobs` array per cleaner), so opening this never needs a new fetch.
+function openCleanerDetail(cleanerId){
+  const cleaners = CLEANER_DAILY_REPORT?.cleaners || [];
+  const c = cleaners.find(x => String(x.cleanerId) === String(cleanerId));
+  if (!c) return;
+
+  $('cleanerDetailName').textContent = c.cleanerName || 'Unknown';
+  $('cleanerDetailMeta').textContent = (c.employeeId ? '#' + c.employeeId : '') +
+    (c.phoneNumber ? '  ·  ☎ ' + c.phoneNumber : '') +
+    '  ·  ' + formatReportDateLabel().split(' · Last')[0];
+
+  const sortedJobs = (c.jobs || []).slice().sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+  $('cleanerDetailJobsBody').innerHTML = sortedJobs.length ? sortedJobs.map(j => {
+    const dayLabel = j.totalWashes > 1 ? `Day ${j.dayNumber}/${j.totalWashes}` : '—';
+    const jobBadgeClass = j.status === 'completed' ? 'completed' : j.status === 'missed' ? 'cancelled' : 'pending';
+    const jobStatusLabel = { completed: 'Completed', missed: 'Missed', pending: 'Pending', skipped: 'Skipped' }[j.status] || j.status;
+    return `
+      <tr>
+        <td><span class="order-id">${escapeHtml(j.orderId || '—')}</span></td>
+        <td>${escapeHtml(j.customerName)}</td>
+        <td>${escapeHtml(j.packageTitle || '—')}</td>
+        <td>${dayLabel}</td>
+        <td><span class="badge ${jobBadgeClass}">${jobStatusLabel}</span></td>
+      </tr>
+    `;
+  }).join('') : `<tr><td colspan="5"><div class="empty-state">No jobs scheduled for this cleaner in this range.</div></td></tr>`;
+
+  $('cleanerDetailOverlay').classList.add('open');
+}
+
+function closeCleanerDetail(){
+  $('cleanerDetailOverlay').classList.remove('open');
+}
+$('closeCleanerDetailBtn').addEventListener('click', closeCleanerDetail);
+$('closeCleanerDetailBtn2').addEventListener('click', closeCleanerDetail);
+
+function renderDailyReport(){
+  $('reportDateLabel').textContent = formatReportDateLabel();
+
+  const mgrRangeOrders = getOrdersAssignedInRange();
+
+  // NOTE: the on-screen stat cards are now driven by renderCleanerDailyReport()
+  // (real wash-day counts), not order status — this function still computes
+  // per-manager rows below, and getOrdersInRange() is still used by the
+  // Excel export further down, so nothing else changes here.
+
+  // ── Per-manager performance — every number scoped to the selected range ──
+  let managerRows = REPORT_MANAGERS.map(m => {
+    const assigned = mgrRangeOrders.filter(o => orderBelongsToManager(o, m));
+    const done = assigned.filter(o => o.status === 'completed').length;
+    const inProg = assigned.filter(o => o.status === 'inProgress').length;
+    const pct = assigned.length > 0 ? Math.round((done / assigned.length) * 100) : 0;
+    const isActiveInRange = assigned.length > 0;
+    const mgrKey = m.employeeId || m._id;
+
+    return { manager: m, mgrKey, assignedCount: assigned.length, done, inProg, pct, isActiveInRange };
+  });
+
+  // Sort by completed (done) descending
+  managerRows.sort((a, b) => b.done - a.done);
+  LAST_MANAGER_ROWS = managerRows;
+
+  $('reportMgrCount').textContent = `${managerRows.length} manager${managerRows.length !== 1 ? 's' : ''}`;
+
+  if (!managerRows.length){
+    $('reportManagersBody').innerHTML = `<tr><td colspan="6"><div class="empty-state">No managers found.</div></td></tr>`;
+    return;
+  }
+
+  const avatarHues = ['aqua', 'violet', 'amber', 'green', 'red'];
+
+  $('reportManagersBody').innerHTML = managerRows.map((r, i) => {
+    const m = r.manager;
+    const initials = (m.username || '??').slice(0, 2).toUpperCase();
+    const barColor = r.pct >= 70 ? 'var(--green)' : r.pct >= 40 ? 'var(--amber)' : 'var(--red)';
+    const badge = r.isActiveInRange
+      ? '<span class="badge active-badge">Active</span>'
+      : '<span class="badge idle-badge">Idle</span>';
+    const phoneRow = m.phoneNumber
+      ? `<div class="mgr-phone-row">☎ ${escapeHtml(String(m.phoneNumber))}</div>`
+      : '';
+    const hue = avatarHues[i % avatarHues.length];
+
+    return `
+      <tr class="mgr-row" data-mgr-open="${escapeHtml(String(r.mgrKey))}" style="cursor:pointer;">
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div class="report-avatar avatar-${hue}">${initials}</div>
+            <div style="min-width:0;">
+              <div class="cust-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${escapeHtml(m.username || 'Unknown')}
+                <span style="font-weight:400;font-size:11px;color:var(--muted);font-family:var(--mono);"> ${escapeHtml(m.employeeId || '')}</span>
+              </div>
+              ${phoneRow}
+              <div style="font-size:10.5px;color:var(--aqua);margin-top:2px;">Click for cleaner &amp; order detail →</div>
+            </div>
+          </div>
+        </td>
+        <td style="text-align:right;">${r.assignedCount}</td>
+        <td style="text-align:right;color:var(--green);font-weight:600;">${r.done}</td>
+        <td style="text-align:right;color:var(--amber);">${r.inProg}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="progress-track"><div class="progress-fill" style="width:${r.pct}%;background:${barColor};transition:width .4s ease;"></div></div>
+            <span style="font-size:12px;color:var(--muted);min-width:32px;text-align:right;">${r.pct}%</span>
+          </div>
+        </td>
+        <td>${badge}</td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('#reportManagersBody tr[data-mgr-open]').forEach(row => {
+    row.addEventListener('click', async () => {
+      const key = row.getAttribute('data-mgr-open');
+      // Pull the latest orders/status before opening, so a job a cleaner just
+      // finished shows as Completed immediately instead of waiting for the
+      // next 20s auto-refresh tick.
+      await loadDailyReport(true);
+      openManagerDetail(key);
+    });
+  });
+}
+
+// ── Manager Detail Modal ────────────────────────────────────────────────────
+let activeManagerDetailKey = null;
+
+function openManagerDetail(mgrKey, isRefresh = false){
+  const row = LAST_MANAGER_ROWS.find(r => String(r.mgrKey) === String(mgrKey));
+  if (!row) return;
+  activeManagerDetailKey = mgrKey;
+
+  const m = row.manager;
+  const orders = getManagerRangeOrders(m);
+  const cleaners = getCleanerBreakdownForManager(m);
+
+  $('mgrDetailName').textContent = m.username || 'Unknown';
+  $('mgrDetailMeta').textContent = (m.employeeId ? '#' + m.employeeId : '') +
+    (m.phoneNumber ? '  ·  ☎ ' + m.phoneNumber : '') +
+    '  ·  ' + formatReportDateLabel().split(' · Last')[0];
+
+  $('mgrDetailCleanerCount').textContent = cleaners.length;
+  $('mgrDetailOrderCount').textContent = orders.length;
+  $('mgrDetailCompletedCount').textContent = orders.filter(o => o.status === 'completed').length;
+  $('mgrDetailInProgressCount').textContent = orders.filter(o => o.status === 'inProgress').length;
+
+  $('mgrDetailCleanersBody').innerHTML = cleaners.length ? cleaners.map(c => {
+    const cl = c.cleaner || {};
+    const pct = c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0;
+    const barColor = pct >= 70 ? 'var(--green)' : pct >= 40 ? 'var(--amber)' : 'var(--red)';
+    // Shows actual day-by-day progress (e.g. "3/5 wash days done") separately
+    // from the order-level Completed/In-progress counts, since a multi-day
+    // order stays "In progress" at the order level until every day is done —
+    // this line is what tells you the cleaner really did finish today's job.
+    const washLine = c.washDaysTotal > 1
+      ? `<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">${c.washDaysCompleted}/${c.washDaysTotal} wash days done</div>`
+      : '';
+    return `
+      <tr>
+        <td>
+          <div class="cust-name">${escapeHtml(cl.username || 'Unknown')}</div>
+          <div class="cust-meta">${escapeHtml(cl.employeeId || '')}${cl.phoneNumber ? ' · ☎ ' + escapeHtml(String(cl.phoneNumber)) : ''}</div>
+          ${washLine}
+        </td>
+        <td style="text-align:right;">${c.total}</td>
+        <td style="text-align:right;color:var(--green);font-weight:600;">${c.completed}</td>
+        <td style="text-align:right;color:var(--amber);">${c.inProgress}</td>
+        <td style="text-align:right;">
+          <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+            <span>${pct}%</span>
+            <div class="progress-track" style="width:50px;"><div class="progress-fill" style="width:${pct}%;background:${barColor};"></div></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('') : `<tr><td colspan="5"><div class="empty-state">This manager hasn't handed any orders to a cleaner in this range.</div></td></tr>`;
+
+  const sortedOrders = orders.slice().sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+  $('mgrDetailOrdersBody').innerHTML = sortedOrders.length ? sortedOrders.map(o => {
+    const cust = o.userId || {};
+    const cleaner = o.assignedTo;
+    return `
+      <tr>
+        <td><span class="order-id">${o.orderId}</span></td>
+        <td>${escapeHtml(cust.username || 'Unknown')}</td>
+        <td>${cleaner ? escapeHtml(cleaner.username || '—') : '<span style="color:var(--muted);">Unassigned</span>'}</td>
+        <td><span class="badge ${statusBadgeClass(o.status)}">${statusLabel(o.status)}</span>${washProgressLine(o)}</td>
+      </tr>
+    `;
+  }).join('') : `<tr><td colspan="4"><div class="empty-state">No orders assigned to this manager in this range.</div></td></tr>`;
+
+  if (!isRefresh) $('managerDetailOverlay').classList.add('open');
+}
+
+function closeManagerDetail(){
+  $('managerDetailOverlay').classList.remove('open');
+  activeManagerDetailKey = null;
+}
+$('closeManagerDetailBtn').addEventListener('click', closeManagerDetail);
+$('closeManagerDetailBtn2').addEventListener('click', closeManagerDetail);
+
+// ── Range tab switching ─────────────────────────────────────────────────────
+document.querySelectorAll('#reportRangeTabs .seg-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#reportRangeTabs .seg-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    reportRange = tab.getAttribute('data-range');
+    $('reportCustomRange').style.display = reportRange === 'custom' ? 'flex' : 'none';
+    if (reportRange !== 'custom'){
+      renderDailyReport();
+      loadCleanerDailyReport(); // date range changed — cleaner report needs a fresh server fetch
+    }
+  });
+});
+
+$('reportApplyCustomBtn').addEventListener('click', () => {
+  const s = $('reportStartDate').value;
+  const e = $('reportEndDate').value;
+  if (!s || !e){
+    toast('Pick both a start and end date.', true);
+    return;
+  }
+  if (s > e){
+    toast('Start date must be before end date.', true);
+    return;
+  }
+  reportCustomStart = s;
+  reportCustomEnd = e;
+  renderDailyReport();
+  loadCleanerDailyReport();
+});
+
+$('reportRefreshBtn').addEventListener('click', () => { loadDailyReport(); loadCleanerDailyReport(); });
+
+// ── Download as Excel-compatible file ───────────────────────────────────────
+// NOTE: This builds ONLY a table fragment (no <html>/<head>/<body> wrapper).
+// Excel opens .xls files containing just a <table> fine, and keeping raw
+// <html>/<body> tags out of this string avoids confusing naive HTML parsers
+// that some hosts/build pipelines run over the page.
+// Everything in this export uses the SAME range-scoped numbers as the on-screen
+// report and modal, so the download always matches what you were just looking at.
+$('reportDownloadBtn').addEventListener('click', () => {
+  const rangeOrders = getOrdersInRange();
+  const total = rangeOrders.length;
+  const completed = rangeOrders.filter(o => o.status === 'completed').length;
+  const inProgress = rangeOrders.filter(o => o.status === 'inProgress').length;
+  const unassigned = rangeOrders.filter(o => !o.assignedManager).length;
+  const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  const managerRows = LAST_MANAGER_ROWS.length ? LAST_MANAGER_ROWS : [];
+
+  const cleanerRowsHtml = managerRows.map(r => {
+    const cleaners = getCleanerBreakdownForManager(r.manager);
+    if (!cleaners.length) return '';
+    return cleaners.map(c => {
+      const cl = c.cleaner || {};
+      const clPct = c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0;
+      return '<tr>' +
+        '<td>' + escapeHtml(r.manager.username || '') + '</td>' +
+        '<td>' + escapeHtml(cl.username || '') + '</td>' +
+        '<td>' + escapeHtml(cl.employeeId || '') + '</td>' +
+        '<td>' + escapeHtml(String(cl.phoneNumber || '')) + '</td>' +
+        '<td>' + c.total + '</td>' +
+        '<td>' + c.completed + '</td>' +
+        '<td>' + c.inProgress + '</td>' +
+        '<td>' + clPct + '%</td>' +
+      '</tr>';
+    }).join('');
+  }).join('');
+
+  const html =
+    '<meta charset="UTF-8">' +
+    '<h2>Shine Steer &mdash; Daily Report</h2>' +
+    '<p>' + escapeHtml(formatReportDateLabel()) + '</p>' +
+    '<table border="1" cellpadding="6" cellspacing="0">' +
+      '<tr><th>Orders in range</th><th>Completed</th><th>In progress</th><th>Unassigned</th><th>Completion rate</th></tr>' +
+      '<tr><td>' + total + '</td><td>' + completed + '</td><td>' + inProgress + '</td><td>' + unassigned + '</td><td>' + rate + '%</td></tr>' +
+    '</table>' +
+    '<br>' +
+    '<h3>Manager performance (selected range)</h3>' +
+    '<table border="1" cellpadding="6" cellspacing="0">' +
+      '<tr><th>Manager</th><th>Employee ID</th><th>Phone</th><th>Assigned</th><th>Done</th><th>In Progress</th><th>Completion %</th></tr>' +
+      managerRows.map(r =>
+        '<tr>' +
+          '<td>' + escapeHtml(r.manager.username || '') + '</td>' +
+          '<td>' + escapeHtml(r.manager.employeeId || '') + '</td>' +
+          '<td>' + escapeHtml(String(r.manager.phoneNumber || '')) + '</td>' +
+          '<td>' + r.assignedCount + '</td>' +
+          '<td>' + r.done + '</td>' +
+          '<td>' + r.inProg + '</td>' +
+          '<td>' + r.pct + '%</td>' +
+        '</tr>'
+      ).join('') +
+    '</table>' +
+    '<br>' +
+    '<h3>Cleaner breakdown by manager (selected range)</h3>' +
+    '<table border="1" cellpadding="6" cellspacing="0">' +
+      '<tr><th>Manager</th><th>Cleaner</th><th>Employee ID</th><th>Phone</th><th>Assigned</th><th>Completed</th><th>In Progress</th><th>Completion %</th></tr>' +
+      cleanerRowsHtml +
+    '</table>';
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fileDate = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `shine-steer-daily-report-${fileDate}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  toast('Report downloaded');
+});
+
+/* =========================================================================
    MANAGERS — Admin only: list & create
    Reads from  GET  /admin/managers
    Creates via POST /employee/signup
@@ -1310,7 +2550,7 @@ $('saveTicketDetailBtn').addEventListener('click', async () => {
 async function loadManagers(){
   $('managersBody').innerHTML = '<tr class="loading-row"><td colspan="6">Loading managers…</td></tr>';
   try {
-    const res = await fetch(API_BASE_URL + '/admin/managers');
+    const res = await fetch(API_BASE_URL + '/admin/managers', { cache: 'no-store' });
     const data = await res.json();
     MANAGERS_LIST = data.success ? (data.managers || []) : [];
     if (!data.success) toast(data.message || 'Failed to load managers', true);
@@ -1443,7 +2683,8 @@ $('submitEditManagerBtn').addEventListener('click', async () => {
   try {
     const response = await fetch(API_BASE_URL + '/admin/managers/' + employeeId, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
       body: JSON.stringify(body)
     });
     res = await response.json();
@@ -1473,7 +2714,8 @@ async function deleteManager(employeeId, name){
   try {
     const response = await fetch(API_BASE_URL + '/admin/managers/' + employeeId, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
     });
     res = await response.json();
   } catch(e){
@@ -1522,7 +2764,8 @@ $('submitAddManagerBtn').addEventListener('click', async () => {
   try {
     const response = await fetch(API_BASE_URL + '/employee/signup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
       body: JSON.stringify({ username: name, phoneNumber: phone, email, password })
     });
     res = await response.json();
@@ -1557,12 +2800,289 @@ $('submitAddManagerBtn').addEventListener('click', async () => {
   await loadManagers();
 });
 
+/* =========================================================================
+   COUPONS — Admin only: list, create, update, delete
+   Reads from   GET    /coupon
+   Creates via  POST   /coupon
+   Updates via  PUT    /coupon/:id
+   Deletes via  DELETE /coupon/:id
+   ========================================================================= */
+async function loadCoupons(){
+  $('couponsBody').innerHTML = '<tr class="loading-row"><td colspan="8">Loading coupons…</td></tr>';
+  const res = await couponApi('/coupon', 'GET');
+  COUPONS = res.success ? (res.coupons || []) : [];
+  if (!res.success) toast(res.message || 'Failed to load coupons', true);
+  renderCouponStats();
+  renderCouponsTable();
+}
+
+function couponIsExpired(c){
+  return !!c.expiresAt && new Date(c.expiresAt) < new Date();
+}
+
+function renderCouponStats(){
+  const total = COUPONS.length;
+  const expired = COUPONS.filter(couponIsExpired).length;
+  const active = COUPONS.filter(c => c.isActive && !couponIsExpired(c)).length;
+  const totalUsed = COUPONS.reduce((sum, c) => sum + (c.usedCount || 0), 0);
+  $('couponStatTotal').textContent = total;
+  $('couponStatActive').textContent = active;
+  $('couponStatExpired').textContent = expired;
+  $('couponStatUsed').textContent = totalUsed;
+}
+
+function couponMatchesSearch(c, q){
+  if (!q) return true;
+  return String(c.code || '').toLowerCase().includes(q.toLowerCase());
+}
+
+function couponPassesFilter(c){
+  switch(couponFilter){
+    case 'active': return c.isActive && !couponIsExpired(c);
+    case 'inactive': return !c.isActive;
+    case 'expired': return couponIsExpired(c);
+    default: return true;
+  }
+}
+
+function formatDiscount(c){
+  return c.discountType === 'flat'
+    ? `₹${c.discountValue} off`
+    : `${c.discountValue}% off${c.maxDiscount ? ' (up to ₹' + c.maxDiscount + ')' : ''}`;
+}
+
+function formatCouponUsage(c){
+  const used = c.usedCount || 0;
+  return c.usageLimit ? `${used} / ${c.usageLimit}` : `${used} / ∞`;
+}
+
+function formatCouponExpiry(c){
+  if (!c.expiresAt) return 'Never';
+  return new Date(c.expiresAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function renderCouponsTable(){
+  const q = $('couponSearchInput').value.trim();
+  const rows = COUPONS.filter(c => couponMatchesSearch(c, q) && couponPassesFilter(c));
+
+  if (!rows.length){
+    $('couponsBody').innerHTML = `<tr><td colspan="8"><div class="empty-state">No coupons match this view.</div></td></tr>`;
+    return;
+  }
+
+  $('couponsBody').innerHTML = rows.map(c => {
+    const expired = couponIsExpired(c);
+    const statusBadge = expired
+      ? '<span class="badge expired">Expired</span>'
+      : (c.isActive ? '<span class="badge active-badge">Active</span>' : '<span class="badge idle-badge">Inactive</span>');
+
+    return `
+      <tr data-coupon-id="${c._id}" style="cursor:pointer;">
+        <td><span class="order-id">${escapeHtml(c.code)}</span></td>
+        <td><span class="badge ${c.discountType}">${c.discountType === 'flat' ? 'Flat' : 'Percentage'}</span></td>
+        <td>${formatDiscount(c)}</td>
+        <td>₹${c.minOrderAmount || 0}</td>
+        <td>${formatCouponUsage(c)}</td>
+        <td>${formatCouponExpiry(c)}</td>
+        <td>${statusBadge}</td>
+        <td>
+          <div class="assign-cell">
+            <button class="save-icon-btn violet" title="Edit coupon" onclick="event.stopPropagation(); openCouponForm('edit','${c._id}')">✎</button>
+            <button class="save-icon-btn" title="Delete coupon" style="color:var(--red);border-color:var(--red);" onclick="event.stopPropagation(); deleteCoupon('${c._id}','${escapeHtml(c.code)}')">✕</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('#couponsBody tr[data-coupon-id]').forEach(row => {
+    row.addEventListener('click', () => openCouponDetail(row.getAttribute('data-coupon-id')));
+  });
+}
+
+$('couponSearchInput').addEventListener('input', renderCouponsTable);
+$('couponRefreshBtn').addEventListener('click', loadCoupons);
+document.querySelectorAll('#couponFilterTabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#couponFilterTabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    couponFilter = tab.getAttribute('data-filter');
+    renderCouponsTable();
+  });
+});
+
+// Toggle the "max discount" field's relevance — it only applies to percentage coupons.
+$('couponDiscountType').addEventListener('change', () => {
+  const isPct = $('couponDiscountType').value === 'percentage';
+  $('couponMaxDiscountField').style.opacity = isPct ? '1' : '.45';
+  $('couponMaxDiscount').disabled = !isPct;
+  if (!isPct) $('couponMaxDiscount').value = '';
+});
+
+/* ---------------- CREATE / EDIT COUPON MODAL ---------------- */
+function openCouponForm(mode, id){
+  couponFormMode = mode;
+  const isEdit = mode === 'edit';
+  $('couponFormTitle').textContent = isEdit ? 'Edit coupon' : 'Create coupon';
+  $('submitCouponFormBtn').textContent = isEdit ? 'Save changes' : 'Create coupon';
+
+  if (isEdit){
+    const c = COUPONS.find(x => x._id === id);
+    if (!c) return;
+    $('couponFormId').value = c._id;
+    $('couponCode').value = c.code;
+    $('couponIsActive').value = String(!!c.isActive);
+    $('couponDiscountType').value = c.discountType;
+    $('couponDiscountValue').value = c.discountValue;
+    $('couponMinOrder').value = c.minOrderAmount || 0;
+    $('couponMaxDiscount').value = c.maxDiscount ?? '';
+    $('couponUsageLimit').value = c.usageLimit ?? '';
+    $('couponExpiresAt').value = c.expiresAt ? new Date(c.expiresAt).toISOString().slice(0,10) : '';
+    $('couponDescription').value = c.description || '';
+  } else {
+    $('couponFormId').value = '';
+    $('couponCode').value = '';
+    $('couponIsActive').value = 'true';
+    $('couponDiscountType').value = 'flat';
+    $('couponDiscountValue').value = '';
+    $('couponMinOrder').value = '';
+    $('couponMaxDiscount').value = '';
+    $('couponUsageLimit').value = '';
+    $('couponExpiresAt').value = '';
+    $('couponDescription').value = '';
+  }
+
+  $('couponDiscountType').dispatchEvent(new Event('change'));
+  $('couponFormOverlay').classList.add('open');
+}
+
+$('addCouponBtn').addEventListener('click', () => openCouponForm('create'));
+$('closeCouponFormBtn').addEventListener('click', () => $('couponFormOverlay').classList.remove('open'));
+$('cancelCouponFormBtn').addEventListener('click', () => $('couponFormOverlay').classList.remove('open'));
+
+$('submitCouponFormBtn').addEventListener('click', async () => {
+  const code = $('couponCode').value.trim().toUpperCase();
+  const discountType = $('couponDiscountType').value;
+  const discountValue = $('couponDiscountValue').value;
+  const minOrderAmount = $('couponMinOrder').value;
+  const maxDiscount = $('couponMaxDiscount').value;
+  const usageLimit = $('couponUsageLimit').value;
+  const isActive = $('couponIsActive').value === 'true';
+  const expiresAt = $('couponExpiresAt').value;
+  const description = $('couponDescription').value.trim();
+
+  if (!code || !discountType || discountValue === ''){
+    toast('Code, discount type and discount value are required.', true);
+    return;
+  }
+  if (discountType === 'percentage' && Number(discountValue) > 100){
+    toast('Percentage discount cannot exceed 100.', true);
+    return;
+  }
+
+  const payload = {
+    code,
+    discountType,
+    discountValue: Number(discountValue),
+    minOrderAmount: minOrderAmount === '' ? 0 : Number(minOrderAmount),
+    maxDiscount: discountType === 'percentage' && maxDiscount !== '' ? Number(maxDiscount) : null,
+    usageLimit: usageLimit === '' ? null : Number(usageLimit),
+    isActive,
+    expiresAt: expiresAt || null,
+    description,
+    createdBy: CURRENT_USER ? CURRENT_USER.email : null
+  };
+
+  const id = $('couponFormId').value;
+  const btn = $('submitCouponFormBtn');
+  btn.disabled = true;
+
+  const res = couponFormMode === 'edit'
+    ? await couponApi('/coupon/' + id, 'PUT', payload)
+    : await couponApi('/coupon', 'POST', payload);
+
+  btn.disabled = false;
+
+  if (!res.success){
+    toast(res.message || 'Failed to save coupon', true);
+    return;
+  }
+
+  $('couponFormOverlay').classList.remove('open');
+  toast(couponFormMode === 'edit' ? 'Coupon updated' : 'Coupon created — ' + res.coupon.code);
+  await loadCoupons();
+});
+
+/* ---------------- COUPON DETAIL (view + delete + jump to edit) ---------------- */
+function openCouponDetail(id){
+  const c = COUPONS.find(x => x._id === id);
+  if (!c) return;
+  activeCouponId = id;
+
+  $('couponDetailTitle').textContent = c.code;
+  $('couponDetailDiscount').textContent = formatDiscount(c);
+  $('couponDetailMinOrder').textContent = '₹' + (c.minOrderAmount || 0);
+  $('couponDetailMaxDiscount').textContent = c.discountType === 'percentage' && c.maxDiscount ? '₹' + c.maxDiscount : '—';
+  $('couponDetailUsage').textContent = formatCouponUsage(c);
+  $('couponDetailExpires').textContent = formatCouponExpiry(c);
+  $('couponDetailDescription').textContent = c.description || '—';
+
+  const expired = couponIsExpired(c);
+  const statusText = expired ? 'Expired' : (c.isActive ? 'Active' : 'Inactive');
+  $('couponDetailMeta').textContent = 'Status: ' + statusText + (c.createdBy ? ' · created by ' + c.createdBy : '');
+
+  $('couponDetailOverlay').classList.add('open');
+}
+
+function closeCouponDetail(){
+  $('couponDetailOverlay').classList.remove('open');
+  activeCouponId = null;
+}
+$('closeCouponDetailBtn').addEventListener('click', closeCouponDetail);
+$('closeCouponDetailBtn2').addEventListener('click', closeCouponDetail);
+
+$('editCouponDetailBtn').addEventListener('click', () => {
+  const id = activeCouponId;
+  closeCouponDetail();
+  openCouponForm('edit', id);
+});
+
+$('deleteCouponDetailBtn').addEventListener('click', async () => {
+  if (!activeCouponId) return;
+  const c = COUPONS.find(x => x._id === activeCouponId);
+  await deleteCoupon(activeCouponId, c ? c.code : '');
+  closeCouponDetail();
+});
+
+/* ---------------- DELETE COUPON ---------------- */
+async function deleteCoupon(id, code){
+  if (!confirm(`Delete coupon "${code}"?\n\nThis cannot be undone.`)) return;
+
+  const res = await couponApi('/coupon/' + id, 'DELETE');
+  if (!res.success){
+    toast(res.message || 'Failed to delete coupon', true);
+    return;
+  }
+
+  toast('Coupon ' + code + ' deleted');
+  await loadCoupons();
+}
+
 /* close modals on overlay click or Escape */
 document.querySelectorAll('.modal-overlay').forEach(o =>
   o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(o => o.classList.remove('open'));
 });
+
+/* ---------------- BOOT: restore a saved session on page load/refresh ---------------- */
+(function initSession(){
+  const saved = loadSession();
+  if (saved){
+    CURRENT_USER = saved;
+    showDashboard();
+  }
+})();
 </script>
 
 </body>
