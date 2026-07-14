@@ -1447,26 +1447,59 @@ function getPackageName(order){
   return order?.cart?.[0]?.packageId?.packageTitle || '—';
 }
 
+const DAYS_OF_WEEK = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function startOfDayLocal(date){
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// Sunday purchase → treat as next-day (Monday) start — mirrors shiftIfSunday()
+// in utils/packageDates.js.
+function shiftIfSunday(date){
+  const d = new Date(date);
+  if (d.getDay() === 0) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+// Adds `days` WORKING days (skips Sundays only) — mirrors addWorkingDays()
+// in utils/packageDates.js.
+function addWorkingDaysSkipSunday(startDate, days){
+  let date = new Date(startDate);
+  let added = 0;
+  while (added < days){
+    date.setDate(date.getDate() + 1);
+    if (date.getDay() !== 0) added++;
+  }
+  return date;
+}
+
+// Client-side port of computePackageInfo() in utils/packageDates.js —
+// SAME algorithm your backend uses to compute the "Activates <date>" the
+// customer app shows (see attachPackageInfo(), used on the customer-facing
+// GET /orders/user/:userId route). That route isn't the one the admin
+// panel calls, so this value never reaches /admin/orders — replicating the
+// pure calculation here (order.createdOn + package.validity) reproduces
+// the exact same date without touching your backend at all.
+function computeScheduledActivationDate(order){
+  const validity = order?.cart?.[0]?.packageId?.validity;
+  if (!validity || !order?.createdOn) return null;
+  const purchaseDate = new Date(order.createdOn);
+  return startOfDayLocal(addWorkingDaysSkipSunday(shiftIfSunday(purchaseDate), 3));
+}
+
 function getActivationDateValue(order){
-  // Confirmed against your actual routes/order.js and routes/admin.js:
-  //
-  //   - routes/order.js PUT /assign-cleaner (manager app): sets
-  //     order.startDate (via buildWashSchedule()) the FIRST time a cleaner
-  //     is assigned, and ALWAYS sets order.assignedOn on every assignment.
-  //   - routes/admin.js PUT /admin/assign-cleaner (admin panel): sets
-  //     order.assignedOn on every assignment, but never touches startDate.
-  //
-  // So order.assignedOn is the one field guaranteed to be set the moment
-  // ANY order activates, regardless of which of the two routes assigned the
-  // cleaner — no backend change needed, this data is already in your API
-  // response. order.startDate is preferred when present since it's
-  // normalized to midnight of the actual activation day; assignedOn is the
-  // fallback for orders assigned through the admin route.
-  //
-  // Deliberately NOT falling back to order.createdOn (the booking date) —
-  // an order that has no manager/cleaner yet genuinely hasn't activated,
-  // and should keep showing "Not activated yet" rather than a booking date.
-  return order?.startDate || order?.assignedOn || null;
+  // Priority:
+  //   1) The scheduled activation date customers see in-app ("Activates
+  //      17 Jul 2026") — computed from order.createdOn + package.validity,
+  //      exactly like utils/packageDates.js does server-side. This is
+  //      almost always available the instant an order is placed.
+  //   2) order.startDate — set once a cleaner is actually assigned
+  //      (routes/order.js's /assign-cleaner, via buildWashSchedule()).
+  //   3) order.assignedOn — set on every cleaner assignment in both
+  //      routes/order.js AND routes/admin.js, as a fallback.
+  return computeScheduledActivationDate(order) || order?.startDate || order?.assignedOn || null;
 }
 
 function formatShortDate(value){
