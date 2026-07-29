@@ -1177,6 +1177,7 @@
 <script>
 /* ⚙️ Set this to your backend URL. Make sure routes/admin.js is mounted at /admin
    and your ticket routes are mounted at /tickets. */
+
 // const API_BASE_URL = "https://carclean-sandbox-f1000a410813.herokuapp.com";
   
   const API_BASE_URL = "https://shine-steer-cleaning-8cba71055cb7.herokuapp.com"
@@ -2499,63 +2500,123 @@ $('reportRefreshBtn').addEventListener('click', () => { loadDailyReport(); loadC
 // Everything in this export uses the SAME range-scoped numbers as the on-screen
 // report and modal, so the download always matches what you were just looking at.
 $('reportDownloadBtn').addEventListener('click', () => {
-  const rangeOrders = getOrdersInRange();
-  const total = rangeOrders.length;
-  const completed = rangeOrders.filter(o => o.status === 'completed').length;
-  const inProgress = rangeOrders.filter(o => o.status === 'inProgress').length;
-  const unassigned = rangeOrders.filter(o => !o.assignedManager).length;
+  // ── Everything in this export is ALL-TIME now (not scoped to the
+  // Today/Yesterday/Custom picker) — that picker is still great for the
+  // on-screen dashboard, but a downloaded report should reflect every order
+  // you have, so numbers here never zero out just because nothing happened
+  // on the exact day you clicked download. ─────────────────────────────────
+  const allOrders = REPORT_ORDERS.slice();
+  const total = allOrders.length;
+  const completed = allOrders.filter(o => o.status === 'completed').length;
+  const inProgress = allOrders.filter(o => o.status === 'inProgress').length;
+  const unassigned = allOrders.filter(o => !o.assignedManager).length;
   const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  const managerRows = LAST_MANAGER_ROWS.length ? LAST_MANAGER_ROWS : [];
+  // Manager performance, computed fresh from ALL orders (not the range-scoped
+  // LAST_MANAGER_ROWS the on-screen table uses).
+  const managerRows = REPORT_MANAGERS.map(m => {
+    const assigned = allOrders.filter(o => orderBelongsToManager(o, m));
+    const done = assigned.filter(o => o.status === 'completed').length;
+    const pct = assigned.length > 0 ? Math.round((done / assigned.length) * 100) : 0;
+    return { manager: m, assignedCount: assigned.length, done, pct };
+  }).sort((a, b) => b.assignedCount - a.assignedCount);
 
-  const cleanerRowsHtml = managerRows.map(r => {
-    const cleaners = getCleanerBreakdownForManager(r.manager);
-    if (!cleaners.length) return '';
-    return cleaners.map(c => {
-      const cl = c.cleaner || {};
-      const clPct = c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0;
-      return '<tr>' +
-        '<td>' + escapeHtml(r.manager.username || '') + '</td>' +
-        '<td>' + escapeHtml(cl.username || '') + '</td>' +
-        '<td>' + escapeHtml(cl.employeeId || '') + '</td>' +
-        '<td>' + escapeHtml(String(cl.phoneNumber || '')) + '</td>' +
-        '<td>' + c.total + '</td>' +
-        '<td>' + c.completed + '</td>' +
-        '<td>' + c.inProgress + '</td>' +
-        '<td>' + clPct + '%</td>' +
-      '</tr>';
-    }).join('');
+  // ── Excel-safe inline styles ───────────────────────────────────────────
+  const S = {
+    title: 'font-family:Calibri,Arial,sans-serif;font-size:20px;font-weight:bold;color:#16243a;margin:0;',
+    subtitle: 'font-family:Calibri,Arial,sans-serif;font-size:11px;color:#6b7a94;margin:2px 0 14px;',
+    sectionTitle: 'font-family:Calibri,Arial,sans-serif;font-size:14px;font-weight:bold;color:#16243a;margin:22px 0 6px;',
+    table: 'border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:12px;width:100%;',
+    thAqua: 'background:#0e7c74;color:#ffffff;font-weight:bold;padding:8px 10px;border:1px solid #0a5b55;text-align:left;',
+    thViolet: 'background:#5d4fc4;color:#ffffff;font-weight:bold;padding:8px 10px;border:1px solid #46399b;text-align:left;',
+    thAmber: 'background:#b8860b;color:#ffffff;font-weight:bold;padding:8px 10px;border:1px solid #8f6a08;text-align:left;',
+    td: 'padding:7px 10px;border:1px solid #d8dee8;',
+    tdAlt: 'padding:7px 10px;border:1px solid #d8dee8;background:#f4f7fb;',
+  };
+
+  const statusColors = {
+    completed:  { bg: '#e3f9ec', fg: '#1a8a4a' },
+    inProgress: { bg: '#e6f9f7', fg: '#0e7c74' },
+    pending:    { bg: '#fdf3e0', fg: '#b8860b' },
+    cancelled:  { bg: '#fdeaec', fg: '#c0344a' },
+  };
+  function statusCellStyle(status){
+    const c = statusColors[status] || { bg: '#f0f2f6', fg: '#5c6b85' };
+    return `padding:7px 10px;border:1px solid #d8dee8;background:${c.bg};color:${c.fg};font-weight:bold;`;
+  }
+
+  const summaryRow =
+    `<tr><td style="${S.td}">${total}</td><td style="${S.td}">${completed}</td>` +
+    `<td style="${S.td}">${inProgress}</td><td style="${S.td}">${unassigned}</td>` +
+    `<td style="${S.td};font-weight:bold;">${rate}%</td></tr>`;
+
+  const managerRowsHtml = managerRows.map((r, i) => {
+    const rowStyle = i % 2 ? S.tdAlt : S.td;
+    return '<tr>' +
+      `<td style="${rowStyle}">${escapeHtml(r.manager.username || '')}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(r.manager.employeeId || '')}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(String(r.manager.phoneNumber || ''))}</td>` +
+      `<td style="${rowStyle}">${r.assignedCount}</td>` +
+      `<td style="${rowStyle}">${r.done}</td>` +
+      `<td style="${rowStyle}">${r.pct}%</td>` +
+    '</tr>';
+  }).join('');
+
+  // ── ALL ORDERS — same all-time set used for the summary above, so numbers
+  // always match the row count you actually see below. ─────────────────────
+  const allOrdersSorted = allOrders.slice().sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+
+  const orderRowsHtml = allOrdersSorted.map((o, i) => {
+    const user = o.userId || {};
+    const mgr = o.assignedManager;
+    const mgrName = mgr && typeof mgr === 'object' ? mgr.username : (mgr ? String(mgr) : '');
+    const cleaner = o.assignedTo;
+    const cleanerName = cleaner && typeof cleaner === 'object' ? cleaner.username : (cleaner ? String(cleaner) : '');
+    const activation = getActivationDateValue(o);
+    const rowStyle = i % 2 ? S.tdAlt : S.td;
+
+    return '<tr>' +
+      `<td style="${rowStyle};font-weight:bold;color:#0e7c74;">${escapeHtml(o.orderId || '')}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(user.username || 'Unknown')}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(String(user.phoneNumber || ''))}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(getApartmentLabel(o))}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(getPackageName(o))}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(mgrName || 'Unassigned')}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(cleanerName || 'Unassigned')}</td>` +
+      `<td style="${statusCellStyle(o.status)}">${escapeHtml(statusLabel(o.status))}</td>` +
+      `<td style="${rowStyle}">${escapeHtml(activation ? formatShortDate(activation) : 'Not activated yet')}</td>` +
+    '</tr>';
   }).join('');
 
   const html =
     '<meta charset="UTF-8">' +
-    '<h2>Shine Steer &mdash; Daily Report</h2>' +
-    '<p>' + escapeHtml(formatReportDateLabel()) + '</p>' +
-    '<table border="1" cellpadding="6" cellspacing="0">' +
-      '<tr><th>Orders in range</th><th>Completed</th><th>In progress</th><th>Unassigned</th><th>Completion rate</th></tr>' +
-      '<tr><td>' + total + '</td><td>' + completed + '</td><td>' + inProgress + '</td><td>' + unassigned + '</td><td>' + rate + '%</td></tr>' +
+    `<p style="${S.title}">Shine Steer &mdash; Daily Report</p>` +
+    `<p style="${S.subtitle}">Generated ${escapeHtml(new Date().toLocaleString('en-IN'))} &middot; all-time totals</p>` +
+
+    `<p style="${S.sectionTitle}">Summary</p>` +
+    `<table style="${S.table}"><tr>` +
+      `<th style="${S.thAqua}">Total orders</th><th style="${S.thAqua}">Completed</th>` +
+      `<th style="${S.thAqua}">In progress</th><th style="${S.thAqua}">Unassigned</th>` +
+      `<th style="${S.thAqua}">Completion rate</th></tr>` +
+      summaryRow +
     '</table>' +
-    '<br>' +
-    '<h3>Manager performance (selected range)</h3>' +
-    '<table border="1" cellpadding="6" cellspacing="0">' +
-      '<tr><th>Manager</th><th>Employee ID</th><th>Phone</th><th>Assigned</th><th>Done</th><th>In Progress</th><th>Completion %</th></tr>' +
-      managerRows.map(r =>
-        '<tr>' +
-          '<td>' + escapeHtml(r.manager.username || '') + '</td>' +
-          '<td>' + escapeHtml(r.manager.employeeId || '') + '</td>' +
-          '<td>' + escapeHtml(String(r.manager.phoneNumber || '')) + '</td>' +
-          '<td>' + r.assignedCount + '</td>' +
-          '<td>' + r.done + '</td>' +
-          '<td>' + r.inProg + '</td>' +
-          '<td>' + r.pct + '%</td>' +
-        '</tr>'
-      ).join('') +
+
+    `<p style="${S.sectionTitle}">Manager performance</p>` +
+    `<table style="${S.table}"><tr>` +
+      `<th style="${S.thViolet}">Manager</th><th style="${S.thViolet}">Employee ID</th>` +
+      `<th style="${S.thViolet}">Phone</th><th style="${S.thViolet}">Assigned</th>` +
+      `<th style="${S.thViolet}">Done</th><th style="${S.thViolet}">Completion %</th></tr>` +
+      managerRowsHtml +
     '</table>' +
-    '<br>' +
-    '<h3>Cleaner breakdown by manager (selected range)</h3>' +
-    '<table border="1" cellpadding="6" cellspacing="0">' +
-      '<tr><th>Manager</th><th>Cleaner</th><th>Employee ID</th><th>Phone</th><th>Assigned</th><th>Completed</th><th>In Progress</th><th>Completion %</th></tr>' +
-      cleanerRowsHtml +
+
+    `<p style="${S.sectionTitle}">All orders &amp; customers &mdash; ${allOrdersSorted.length} orders</p>` +
+    `<table style="${S.table}"><tr>` +
+      `<th style="${S.thAmber}">Order ID</th><th style="${S.thAmber}">Customer</th>` +
+      `<th style="${S.thAmber}">Phone</th><th style="${S.thAmber}">Location</th>` +
+      `<th style="${S.thAmber}">Package</th><th style="${S.thAmber}">Manager</th>` +
+      `<th style="${S.thAmber}">Cleaner</th><th style="${S.thAmber}">Status</th>` +
+      `<th style="${S.thAmber}">Activation Date</th></tr>` +
+      orderRowsHtml +
     '</table>';
 
   const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
