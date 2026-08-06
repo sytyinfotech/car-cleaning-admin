@@ -1449,7 +1449,35 @@ function getPackageName(order){
   return order?.cart?.[0]?.packageId?.packageTitle || '—';
 }
 
+// ── NEW: weekly-package day-of-week label ───────────────────────────────────
+// selectedServiceDay is set on the Order document only for weekly packages
+// (see backend routes/order.js — buildWashSchedule() calls
+// nextWeekday(startDate, order.selectedServiceDay), and the weekly branch
+// explicitly throws if selectedServiceDay is missing). packageType is set to
+// 'weekly' on the same order once a cleaner is assigned. GET /admin/orders
+// does a plain Order.find() with no field projection, so both fields are
+// already present on every order object returned to this admin panel —
+// no backend changes needed to read them here.
+function getWeeklyDayLabel(order){
+  if (order?.packageType === 'weekly' && order?.selectedServiceDay) {
+    return order.selectedServiceDay; // e.g. "Monday"
+  }
+  return null;
+}
+
 const DAYS_OF_WEEK = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// ── NEW: derive the weekday name straight from a scheduled date. Used for
+// the Cleaner Daily Report job list, where each job (DailyWash doc) carries
+// its own scheduledDate — for weekly packages every job's scheduledDate
+// falls on the same weekday by construction (buildWashSchedule() advances
+// 7 days at a time), so this always matches selectedServiceDay above.
+function formatWeekday(dateStr){
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  return DAYS_OF_WEEK[d.getDay()];
+}
 
 function startOfDayLocal(date){
   const d = new Date(date);
@@ -1635,6 +1663,12 @@ function renderTable() {
       `
       : `<span class="readonly-pill">${o.assignedManager?.username || o.assignedManager || 'Unassigned'}</span>`;
 
+    // ── NEW: append the weekday under the package name for weekly orders ──
+    const weeklyDay = getWeeklyDayLabel(o);
+    const packageCell = weeklyDay
+      ? `${getPackageName(o)}<div class="cust-meta">${weeklyDay}</div>`
+      : getPackageName(o);
+
     return `
       <tr data-order-id="${o.orderId}">
         <td><span class="order-id">${o.orderId}</span></td>
@@ -1644,7 +1678,7 @@ function renderTable() {
         </td>
         <td>${user.phoneNumber || '—'}</td>
         <td>${location}</td>
-        <td>${getPackageName(o)}</td>
+        <td>${packageCell}</td>
         <td>${formatActivationDate(o)}</td>
         <td><span class="badge ${statusBadgeClass(o.status)}">${statusLabel(o.status)}</span>${washProgressLine(o)}</td>
         <td>${assignCell}</td>
@@ -2271,11 +2305,16 @@ function openCleanerDetail(cleanerId){
     const dayLabel = j.totalWashes > 1 ? `Day ${j.dayNumber}/${j.totalWashes}` : '—';
     const jobBadgeClass = j.status === 'completed' ? 'completed' : j.status === 'missed' ? 'cancelled' : 'pending';
     const jobStatusLabel = { completed: 'Completed', missed: 'Missed', pending: 'Pending', skipped: 'Skipped' }[j.status] || j.status;
+    // ── NEW: weekday shown right under the package title ────────────────
+    const weekdayLine = j.scheduledDate ? `<div class="cust-meta">${formatWeekday(j.scheduledDate)}</div>` : '';
     return `
       <tr>
         <td><span class="order-id">${escapeHtml(j.orderId || '—')}</span></td>
         <td>${escapeHtml(j.customerName)}</td>
-        <td>${escapeHtml(j.packageTitle || '—')}</td>
+        <td>
+          ${escapeHtml(j.packageTitle || '—')}
+          ${weekdayLine}
+        </td>
         <td>${dayLabel}</td>
         <td><span class="badge ${jobBadgeClass}">${jobStatusLabel}</span></td>
       </tr>
