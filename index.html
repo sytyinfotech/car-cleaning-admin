@@ -1458,9 +1458,25 @@ function getPackageName(order){
 // does a plain Order.find() with no field projection, so both fields are
 // already present on every order object returned to this admin panel —
 // no backend changes needed to read them here.
+// function getWeeklyDayLabel(order){
+//   if (order?.packageType === 'weekly' && order?.selectedServiceDay) {
+//     return order.selectedServiceDay; // e.g. "Monday"
+//   }
+//   return null;
+// }
+
+
 function getWeeklyDayLabel(order){
-  if (order?.packageType === 'weekly' && order?.selectedServiceDay) {
-    return order.selectedServiceDay; // e.g. "Monday"
+  // NOTE: order.packageType is only set once a cleaner is assigned
+  // (buildWashSchedule() in routes/order.js runs at assignment time, not
+  // at booking time) — so checking packageType === 'weekly' hid this label
+  // for every order still awaiting assignment, even though
+  // selectedServiceDay is captured immediately at checkout for any weekly
+  // package. selectedServiceDay only ever gets set for weekly bookings in
+  // the first place, so its mere presence is enough to know this is a
+  // weekly order and show the day — no need to wait for packageType.
+  if (order?.selectedServiceDay) {
+    return order.selectedServiceDay; // e.g. "Tuesday"
   }
   return null;
 }
@@ -1521,15 +1537,17 @@ function computeScheduledActivationDate(order){
 
 function getActivationDateValue(order){
   // Priority:
-  //   1) The scheduled activation date customers see in-app ("Activates
-  //      17 Jul 2026") — computed from order.createdOn + package.validity,
-  //      exactly like utils/packageDates.js does server-side. This is
-  //      almost always available the instant an order is placed.
-  //   2) order.startDate — set once a cleaner is actually assigned
-  //      (routes/order.js's /assign-cleaner, via buildWashSchedule()).
-  //   3) order.assignedOn — set on every cleaner assignment in both
-  //      routes/order.js AND routes/admin.js, as a fallback.
-  return computeScheduledActivationDate(order) || order?.startDate || order?.assignedOn || null;
+  //   1) order.packageInfo.activationDate — computed SERVER-SIDE, already
+  //      knows about admin overrides AND the customer's own picked date.
+  //   2) computeScheduledActivationDate(order) — old client-only formula,
+  //      kept only as a safety net.
+  //   3) order.startDate — set once a cleaner is assigned.
+  //   4) order.assignedOn — last resort.
+  return order?.packageInfo?.activationDate
+    || computeScheduledActivationDate(order)
+    || order?.startDate
+    || order?.assignedOn
+    || null;
 }
 
 function formatShortDate(value){
