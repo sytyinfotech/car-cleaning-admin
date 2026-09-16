@@ -467,12 +467,13 @@
             <th>Package</th>
             <th>Activation date</th>
             <th>Status</th>
+            <th>Paid</th>
             <th>Assign manager</th>
             <th>Cleaner</th>
           </tr>
         </thead>
         <tbody id="ordersBody">
-          <tr class="loading-row"><td colspan="9">Loading orders…</td></tr>
+          <tr class="loading-row"><td colspan="10">Loading orders…</td></tr>
         </tbody>
       </table>
     </div>
@@ -1464,7 +1465,13 @@ function getPackageName(order){
 //   }
 //   return null;
 // }
-
+function formatPaidAmount(order){
+  const amount = order?.totalPrice;
+  if (amount === undefined || amount === null || amount === '') return '—';
+  const num = Number(amount);
+  if (Number.isNaN(num)) return '—';
+  return '₹' + num.toLocaleString('en-IN');
+}
 
 function getWeeklyDayLabel(order){
   // NOTE: order.packageType is only set once a cleaner is assigned
@@ -1627,7 +1634,7 @@ function renderTable() {
 
   if (!rows.length) {
     $('ordersBody').innerHTML = `
-      <tr><td colspan="9">
+      <tr><td colspan="10">
         <div class="empty-state">No orders match this view.</div>
       </td></tr>`;
     return;
@@ -1699,6 +1706,10 @@ function renderTable() {
         <td>${packageCell}</td>
         <td>${formatActivationDate(o)}</td>
         <td><span class="badge ${statusBadgeClass(o.status)}">${statusLabel(o.status)}</span>${washProgressLine(o)}</td>
+
+        <td>${formatPaidAmount(o)}</td>
+
+
         <td>${assignCell}</td>
         <td>${cleanerLabel}</td>
       </tr>
