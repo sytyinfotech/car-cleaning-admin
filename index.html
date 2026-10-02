@@ -742,6 +742,7 @@
             <th>Type</th>
             <th>Discount</th>
             <th>Min order</th>
+            <th>Max order</th>
             <th>Usage</th>
             <th>Expires</th>
             <th>Status</th>
@@ -749,7 +750,7 @@
           </tr>
         </thead>
         <tbody id="couponsBody">
-          <tr class="loading-row"><td colspan="8">Loading coupons…</td></tr>
+          <tr class="loading-row"><td colspan="9">Loading coupons…</td></tr>
         </tbody>
       </table>
     </div>
@@ -1095,7 +1096,7 @@
           <input type="number" id="couponDiscountValue" placeholder="e.g. 100" min="0">
         </div>
       </div>
-      <div class="row2">
+      <!-- <div class="row2">
         <div class="field">
           <label for="couponMinOrder">Minimum order amount (₹)</label>
           <input type="number" id="couponMinOrder" placeholder="0" min="0">
@@ -1103,8 +1104,30 @@
         <div class="field" id="couponMaxDiscountField">
           <label for="couponMaxDiscount">Max discount cap (₹, % only)</label>
           <input type="number" id="couponMaxDiscount" placeholder="No cap" min="0">
+
+        </div>
+      </div> -->
+
+
+            <div class="row2">
+        <div class="field">
+          <label for="couponMinOrder">Minimum order amount (₹)</label>
+          <input type="number" id="couponMinOrder" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <label for="couponMaxOrder">Maximum order amount (₹)</label>
+          <input type="number" id="couponMaxOrder" placeholder="No limit" min="0">
         </div>
       </div>
+      <div class="row2">
+        <div class="field" id="couponMaxDiscountField">
+          <label for="couponMaxDiscount">Max discount cap (₹, % only)</label>
+          <input type="number" id="couponMaxDiscount" placeholder="No cap" min="0">
+        </div>
+        <div class="field"></div>
+      </div>
+
+
       <div class="row2">
         <div class="field">
           <label for="couponUsageLimit">Usage limit (total uses)</label>
@@ -2967,7 +2990,7 @@ $('submitAddManagerBtn').addEventListener('click', async () => {
    Deletes via  DELETE /coupon/:id
    ========================================================================= */
 async function loadCoupons(){
-  $('couponsBody').innerHTML = '<tr class="loading-row"><td colspan="8">Loading coupons…</td></tr>';
+  $('couponsBody').innerHTML = '<tr class="loading-row"><td colspan="9">Loading coupons…</td></tr>';
   const res = await couponApi('/coupon', 'GET');
   COUPONS = res.success ? (res.coupons || []) : [];
   if (!res.success) toast(res.message || 'Failed to load coupons', true);
@@ -3025,7 +3048,7 @@ function renderCouponsTable(){
   const rows = COUPONS.filter(c => couponMatchesSearch(c, q) && couponPassesFilter(c));
 
   if (!rows.length){
-    $('couponsBody').innerHTML = `<tr><td colspan="8"><div class="empty-state">No coupons match this view.</div></td></tr>`;
+    $('couponsBody').innerHTML = `<tr><td colspan="9"><div class="empty-state">No coupons match this view.</div></td></tr>`;
     return;
   }
 
@@ -3041,6 +3064,7 @@ function renderCouponsTable(){
         <td><span class="badge ${c.discountType}">${c.discountType === 'flat' ? 'Flat' : 'Percentage'}</span></td>
         <td>${formatDiscount(c)}</td>
         <td>₹${c.minOrderAmount || 0}</td>
+        <td>${c.maxOrderAmount ? '₹' + c.maxOrderAmount : '—'}</td>
         <td>${formatCouponUsage(c)}</td>
         <td>${formatCouponExpiry(c)}</td>
         <td>${statusBadge}</td>
@@ -3094,6 +3118,7 @@ function openCouponForm(mode, id){
     $('couponDiscountType').value = c.discountType;
     $('couponDiscountValue').value = c.discountValue;
     $('couponMinOrder').value = c.minOrderAmount || 0;
+    $('couponMaxOrder').value = c.maxOrderAmount ?? '';
     $('couponMaxDiscount').value = c.maxDiscount ?? '';
     $('couponUsageLimit').value = c.usageLimit ?? '';
     $('couponExpiresAt').value = c.expiresAt ? new Date(c.expiresAt).toISOString().slice(0,10) : '';
@@ -3105,6 +3130,7 @@ function openCouponForm(mode, id){
     $('couponDiscountType').value = 'flat';
     $('couponDiscountValue').value = '';
     $('couponMinOrder').value = '';
+        $('couponMaxOrder').value = '';
     $('couponMaxDiscount').value = '';
     $('couponUsageLimit').value = '';
     $('couponExpiresAt').value = '';
@@ -3124,6 +3150,7 @@ $('submitCouponFormBtn').addEventListener('click', async () => {
   const discountType = $('couponDiscountType').value;
   const discountValue = $('couponDiscountValue').value;
   const minOrderAmount = $('couponMinOrder').value;
+    const maxOrderAmount = $('couponMaxOrder').value;
   const maxDiscount = $('couponMaxDiscount').value;
   const usageLimit = $('couponUsageLimit').value;
   const isActive = $('couponIsActive').value === 'true';
@@ -3144,6 +3171,7 @@ $('submitCouponFormBtn').addEventListener('click', async () => {
     discountType,
     discountValue: Number(discountValue),
     minOrderAmount: minOrderAmount === '' ? 0 : Number(minOrderAmount),
+    maxOrderAmount: maxOrderAmount === '' ? null : Number(maxOrderAmount),
     maxDiscount: discountType === 'percentage' && maxDiscount !== '' ? Number(maxDiscount) : null,
     usageLimit: usageLimit === '' ? null : Number(usageLimit),
     isActive,
